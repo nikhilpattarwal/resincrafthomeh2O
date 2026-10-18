@@ -516,11 +516,9 @@ useEffect(() => {
 
           <h3>Help</h3>
 
-          <Link to="/pages/contact">Contact us</Link>
-
-          <Link to="/pages/shipping-policy">Shipping</Link>
-
-          <Link to="/pages/refund-policy">Returns & refunds</Link>
+        <Link to="/pages/contact-us">Contact us</Link>
+<Link to="/pages/shipping">Shipping</Link>
+<Link to="/pages/returns-refund">Returns & refunds</Link>
 
         </div>
 
@@ -528,11 +526,9 @@ useEffect(() => {
 
           <h3>Information</h3>
 
-          <Link to="/pages/about-us">Our story</Link>
-
-          <Link to="/policies/privacy-policy">Privacy policy</Link>
-
-          <Link to="/policies/terms-of-service">Terms of service</Link>
+          <Link to="/pages/our-story">Our story</Link>
+<Link to="/pages/privacy-policy">Privacy policy</Link>
+<Link to="/pages/terms-of-service">Terms of service</Link>
 
         </div>
 
