@@ -18,7 +18,7 @@ export function CartSummary({cart, layout}) {
     <div aria-labelledby={summaryId} className={className}>
       <h4 id={summaryId}>Totals</h4>
       <dl role="group" className="cart-subtotal">
-        <dt>Subtotal</dt>
+        <dt>Subtotal </dt>
         <dd>
           {cart?.cost?.subtotalAmount?.amount ? (
             <Money data={cart?.cost?.subtotalAmount} />

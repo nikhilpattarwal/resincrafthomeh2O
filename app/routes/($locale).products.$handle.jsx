@@ -12,6 +12,7 @@ import {ProductPrice} from '~/components/ProductPrice';
 import {ProductImage} from '~/components/ProductImage';
 import {ProductForm} from '~/components/ProductForm';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {ProductGallery} from '~/components/ProductGallery';
 
 export const meta = ({data}) => {
   const product = data?.product;
@@ -103,9 +104,12 @@ export default function Product() {
 
       <section className="rch-product-layout">
         <div className="rch-product-visual">
-          <div className="rch-product-main-image">
-            <ProductImage image={selectedVariant?.image} />
-          </div>
+          <ProductGallery
+            images={product.images}
+            title={product.title}
+            selectedImage={selectedVariant?.image}
+          />
+
           <p className="rch-image-caption">
             Thoughtfully handmade. Made to be treasured.
           </p>
@@ -598,6 +602,15 @@ const PRODUCT_FRAGMENT = `#graphql
     title
     vendor
     handle
+     images(first: 20) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
     descriptionHtml
     description
     encodedVariantExistence

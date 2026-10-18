@@ -217,6 +217,7 @@
 
 
 
+import { Image } from '@shopify/hydrogen';
 import {useEffect, useRef, useState} from 'react';
 
 const videos = [
@@ -393,7 +394,7 @@ export function ResinProcess() {
           }`}
           aria-hidden={isPlaying && !videoFailed}
         >
-          <img
+          <Image
             src="/resin-story-fallback.png"
             alt=""
             className="resin-process__fallback-image"

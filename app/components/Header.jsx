@@ -1,7 +1,7 @@
 
 import {Suspense} from 'react';
 import {Await, NavLink, useAsyncValue} from 'react-router';
-import {useAnalytics, useOptimisticCart} from '@shopify/hydrogen';
+import {Image, useAnalytics, useOptimisticCart} from '@shopify/hydrogen';
 import {useAside} from '~/components/Aside';
 
 export function Header({header, isLoggedIn, cart, publicStoreDomain}) {
@@ -17,7 +17,7 @@ export function Header({header, isLoggedIn, cart, publicStoreDomain}) {
           className="rch-brand"
           aria-label="Resin Craft Home — Home"
         >
-          <img
+          <Image
             src="/orgLogo.png"
             alt="Resin Craft Home"
             className="rch-brand-logo"
