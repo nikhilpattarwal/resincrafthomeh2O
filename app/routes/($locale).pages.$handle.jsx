@@ -61,7 +61,6 @@ export default function Page() {
     <main className="rch-content-page">
       <article className="rch-content-page__article">
         <header className="rch-content-page__header">
-          <span className="rch-eyebrow">RESIN CRAFT HOME</span>
           <h1>{page.title}</h1>
         </header>
 

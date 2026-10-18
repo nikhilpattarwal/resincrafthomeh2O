@@ -1,10 +1,7 @@
+
 import * as React from 'react';
 import {Pagination} from '@shopify/hydrogen';
 
-/**
- * <PaginatedResourceSection> encapsulates the previous and next pagination behaviors throughout your application.
- * @param {Class<Pagination<NodesType>>['connection']>}
- */
 export function PaginatedResourceSection({
   connection,
   children,
@@ -19,16 +16,18 @@ export function PaginatedResourceSection({
         );
 
         return (
-          <div>
-            <PreviousLink>
+          <div className="rch-pagination">
+            <PreviousLink className="rch-pagination__previous">
               {isLoading ? (
                 'Loading...'
               ) : (
-                <span>
-                  <span aria-hidden="true">↑</span> Load previous
-                </span>
+                <>
+                  <span aria-hidden="true">↑</span>
+                  <span>Load previous</span>
+                </>
               )}
             </PreviousLink>
+
             {resourcesClassName ? (
               <div
                 aria-label={ariaLabel}
@@ -40,15 +39,27 @@ export function PaginatedResourceSection({
             ) : (
               resourcesMarkup
             )}
-            <NextLink>
-              {isLoading ? (
-                'Loading...'
-              ) : (
-                <span>
-                  Load more <span aria-hidden="true">↓</span>
+
+            <div className="rch-pagination__footer">
+              <NextLink
+                className="rch-pagination__button"
+                aria-disabled={isLoading ? 'true' : undefined}
+              >
+                <span>{isLoading ? 'Loading pieces...' : 'Discover more'}</span>
+                <span
+                  className={`rch-pagination__arrow ${
+                    isLoading ? 'is-loading' : ''
+                  }`}
+                  aria-hidden="true"
+                >
+                  {isLoading ? '…' : '↓'}
                 </span>
-              )}
-            </NextLink>
+              </NextLink>
+
+              <p className="rch-pagination__caption">
+                More thoughtful pieces, made to be treasured.
+              </p>
+            </div>
           </div>
         );
       }}

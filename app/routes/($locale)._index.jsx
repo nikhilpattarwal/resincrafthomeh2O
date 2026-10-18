@@ -486,7 +486,7 @@ useEffect(() => {
 
         <p>Discover new pieces, thoughtful gift ideas, and little moments of inspiration.</p>
 
-        <Link className="rch-button" to="/pages/contact">Get in touch</Link>
+        <Link className="rch-button" to="/pages/contact-us">Get in touch</Link>
 
       </section>
 
