@@ -51,7 +51,7 @@ function CartCheckoutActions({checkoutUrl}) {
   return (
     <div>
       <a href={checkoutUrl} target="_self">
-        <p>Continue to Checkout &rarr;</p>
+        <p style={{color:"green", fontWeight:"bold"}}>Continue to Checkout &rarr;</p>
       </a>
       <br />
     </div>
