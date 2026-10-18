@@ -1,130 +1,118 @@
+
 import {Suspense} from 'react';
 import {Await, NavLink} from 'react-router';
 
-/**
- * @param {FooterProps}
- */
 export function Footer({footer: footerPromise, header, publicStoreDomain}) {
+const groups = [
+  {
+    title: 'EXPLORE',
+    links: [
+      {label: 'Home', to: '/'},
+      {label: 'Shop all products', to: '/collections/all'},
+      {label: 'Search', to: '/search'},
+    ],
+  },
+  {
+    title: 'HELP',
+    links: [
+      {label: 'Contact us', to: '/pages/contact-us'},
+      {label: 'Shipping', to: '/pages/shipping'},
+      {label: 'Returns & refunds', to: '/pages/returns-refund'},
+    ],
+  },
+  {
+    title: 'INFORMATION',
+    links: [
+      {label: 'Our story', to: '/pages/our-story'},
+      {label: 'Privacy policy', to: '/pages/privacy-policy'},
+      {label: 'Terms of service', to: '/pages/terms-of-service'},
+    ],
+  },
+];
+
   return (
-    <Suspense>
-      <Await resolve={footerPromise}>
-        {(footer) => (
-          <footer className="footer">
-            {footer?.menu && header.shop.primaryDomain?.url && (
-              <FooterMenu
-                menu={footer.menu}
-                primaryDomainUrl={header.shop.primaryDomain.url}
-                publicStoreDomain={publicStoreDomain}
-              />
-            )}
-          </footer>
-        )}
-      </Await>
-    </Suspense>
+    <footer className="footer rch-footer">
+      <div className="rch-footer-brand">
+        <NavLink to="/" className="rch-footer-logo">
+          Resin Craft Home
+        </NavLink>
+        <p>
+          Handcrafted resin keepsakes for the people,
+          <br />
+          places, and moments you want to hold onto.
+        </p>
+      </div>
+
+      {groups.map((group) => (
+        <nav
+          className="rch-footer-column"
+          aria-label={group.title}
+          key={group.title}
+        >
+          <h2>{group.title}</h2>
+          <ul>
+            {group.links.map((link) => (
+              <li key={link.to}>
+                <NavLink to={link.to}>{link.label}</NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ))}
+
+      <Suspense fallback={null}>
+        <Await resolve={footerPromise}>
+          {(footer) =>
+            footer?.menu ? (
+              <div className="rch-footer-shopify-menu">
+                <ShopifyFooterMenu
+                  menu={footer.menu}
+                  header={header}
+                  publicStoreDomain={publicStoreDomain}
+                />
+              </div>
+            ) : null
+          }
+        </Await>
+      </Suspense>
+    </footer>
   );
 }
 
-/**
- * @param {{
- *   menu: FooterQuery['menu'];
- *   primaryDomainUrl: FooterProps['header']['shop']['primaryDomain']['url'];
- *   publicStoreDomain: string;
- * }}
- */
-function FooterMenu({menu, primaryDomainUrl, publicStoreDomain}) {
+function ShopifyFooterMenu({menu, header, publicStoreDomain}) {
+  const primaryDomainUrl = header?.shop?.primaryDomain?.url;
+
   return (
-    <nav className="footer-menu" role="navigation">
-      {(menu || FALLBACK_FOOTER_MENU).items.map((item) => {
+    <nav aria-label="Additional store links">
+      {menu.items.map((item) => {
         if (!item.url) return null;
-        // if the url is internal, we strip the domain
-        const url =
-          item.url.includes('myshopify.com') ||
-          item.url.includes(publicStoreDomain) ||
-          item.url.includes(primaryDomainUrl)
-            ? new URL(item.url).pathname
-            : item.url;
-        const isExternal = !url.startsWith('/');
-        return isExternal ? (
-          <a href={url} key={item.id} rel="noopener noreferrer" target="_blank">
-            {item.title}
-          </a>
-        ) : (
-          <NavLink
-            end
-            key={item.id}
-            prefetch="intent"
-            style={activeLinkStyle}
-            to={url}
-          >
+
+        let url = item.url;
+
+        try {
+          const parsed = new URL(item.url);
+          if (
+            parsed.hostname.endsWith('myshopify.com') ||
+            (publicStoreDomain && parsed.hostname === publicStoreDomain) ||
+            (primaryDomainUrl &&
+              parsed.hostname === new URL(primaryDomainUrl).hostname)
+          ) {
+            url = parsed.pathname + parsed.search + parsed.hash;
+          }
+        } catch {
+          // Keep relative links unchanged.
+        }
+
+        return url.startsWith('/') ? (
+          <NavLink to={url} key={item.id}>
             {item.title}
           </NavLink>
+        ) : (
+          <a href={url} key={item.id} rel="noopener noreferrer">
+            {item.title}
+          </a>
         );
       })}
     </nav>
   );
 }
-
-const FALLBACK_FOOTER_MENU = {
-  id: 'gid://shopify/Menu/199655620664',
-  items: [
-    {
-      id: 'gid://shopify/MenuItem/461633060920',
-      resourceId: 'gid://shopify/ShopPolicy/23358046264',
-      tags: [],
-      title: 'Privacy Policy',
-      type: 'SHOP_POLICY',
-      url: '/policies/privacy-policy',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461633093688',
-      resourceId: 'gid://shopify/ShopPolicy/23358013496',
-      tags: [],
-      title: 'Refund Policy',
-      type: 'SHOP_POLICY',
-      url: '/policies/refund-policy',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461633126456',
-      resourceId: 'gid://shopify/ShopPolicy/23358111800',
-      tags: [],
-      title: 'Shipping Policy',
-      type: 'SHOP_POLICY',
-      url: '/policies/shipping-policy',
-      items: [],
-    },
-    {
-      id: 'gid://shopify/MenuItem/461633159224',
-      resourceId: 'gid://shopify/ShopPolicy/23358079032',
-      tags: [],
-      title: 'Terms of Service',
-      type: 'SHOP_POLICY',
-      url: '/policies/terms-of-service',
-      items: [],
-    },
-  ],
-};
-
-/**
- * @param {{
- *   isActive: boolean;
- *   isPending: boolean;
- * }}
- */
-function activeLinkStyle({isActive, isPending}) {
-  return {
-    fontWeight: isActive ? 'bold' : undefined,
-    color: isPending ? 'grey' : 'white',
-  };
-}
-
-/**
- * @typedef {Object} FooterProps
- * @property {Promise<FooterQuery|null>} footer
- * @property {HeaderQuery} header
- * @property {string} publicStoreDomain
- */
-
-/** @typedef {import('storefrontapi.generated').FooterQuery} FooterQuery */
-/** @typedef {import('storefrontapi.generated').HeaderQuery} HeaderQuery */
