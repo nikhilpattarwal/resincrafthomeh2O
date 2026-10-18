@@ -1,3 +1,4 @@
+
 import {useLoaderData} from 'react-router';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 
@@ -5,27 +6,25 @@ import {redirectIfHandleIsLocalized} from '~/lib/redirect';
  * @type {Route.MetaFunction}
  */
 export const meta = ({data}) => {
-  return [{title: `Hydrogen | ${data?.page.title ?? ''}`}];
+  const title = data?.page?.seo?.title || data?.page?.title || 'Information';
+  const description = data?.page?.seo?.description;
+
+  return [
+    {title: `${title} | Resin Craft Home`},
+    ...(description ? [{name: 'description', content: description}] : []),
+  ];
 };
 
 /**
  * @param {Route.LoaderArgs} args
  */
 export async function loader(args) {
-  // Start fetching non-critical data without blocking time to first byte
   const deferredData = loadDeferredData(args);
-
-  // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
 
   return {...deferredData, ...criticalData};
 }
 
-/**
- * Load data necessary for rendering content above the fold. This is the critical data
- * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
- * @param {Route.LoaderArgs}
- */
 async function loadCriticalData({context, request, params}) {
   if (!params.handle) {
     throw new Error('Missing page handle');
@@ -37,41 +36,41 @@ async function loadCriticalData({context, request, params}) {
         handle: params.handle,
       },
     }),
-    // Add other queries here, so that they are loaded in parallel
   ]);
 
   if (!page) {
     throw new Response('Not Found', {status: 404});
   }
 
-  redirectIfHandleIsLocalized(request, {handle: params.handle, data: page});
+  redirectIfHandleIsLocalized(request, {
+    handle: params.handle,
+    data: page,
+  });
 
-  return {
-    page,
-  };
+  return {page};
 }
 
-/**
- * Load data for rendering content below the fold. This data is deferred and will be
- * fetched after the initial page load. If it's unavailable, the page should still 200.
- * Make sure to not throw any errors here, as it will cause the page to 500.
- * @param {Route.LoaderArgs}
- */
-function loadDeferredData({context}) {
+function loadDeferredData() {
   return {};
 }
 
 export default function Page() {
-  /** @type {LoaderReturnData} */
   const {page} = useLoaderData();
 
   return (
-    <div className="page">
-      <header>
-        <h1>{page.title}</h1>
-      </header>
-      <main dangerouslySetInnerHTML={{__html: page.body}} />
-    </div>
+    <main className="rch-content-page">
+      <article className="rch-content-page__article">
+        <header className="rch-content-page__header">
+          <span className="rch-eyebrow">RESIN CRAFT HOME</span>
+          <h1>{page.title}</h1>
+        </header>
+
+        <div
+          className="rch-content-page__content"
+          dangerouslySetInnerHTML={{__html: page.body}}
+        />
+      </article>
+    </main>
   );
 }
 
