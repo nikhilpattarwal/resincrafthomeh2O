@@ -1,0 +1,170 @@
+/* =========================================================
+   RCH EDITORIAL MOTION + SUBTLE PAPER GRAIN
+   Additive styles: preserve existing layout and components.
+   ========================================================= */
+
+.rch-home {
+  position: relative;
+  isolation: isolate;
+  --rch-pointer-x: 0px;
+  --rch-pointer-y: 0px;
+  --rch-scroll-y: 0px;
+}
+
+/* Fine paper texture, intentionally low contrast. */
+/* Fine paper texture — CSP-safe, no SVG data URL */
+.rch-home::before {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  content: "";
+  pointer-events: none;
+  opacity: 0.035;
+
+  background-image:
+    repeating-radial-gradient(
+      circle at 0 0,
+      rgba(65, 42, 30, 0.45) 0,
+      rgba(65, 42, 30, 0.45) 0.5px,
+      transparent 0.8px,
+      transparent 3px
+    );
+
+  background-size: 180px 180px;
+}
+
+.rch-home > * {
+  position: relative;
+}
+
+/* Scroll reveal: content stays visible without JavaScript and during SSR. */
+.rch-home.rch-motion-ready [data-rch-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition:
+    opacity 700ms cubic-bezier(0.2, 0.65, 0.3, 1),
+    transform 800ms cubic-bezier(0.2, 0.65, 0.3, 1);
+  transition-delay: 0ms;
+}
+
+.rch-home.rch-motion-ready [data-rch-reveal][data-rch-delay="1"] {
+  transition-delay: 90ms;
+}
+
+.rch-home.rch-motion-ready [data-rch-reveal][data-rch-delay="2"] {
+  transition-delay: 180ms;
+}
+
+.rch-home.rch-motion-ready [data-rch-reveal].is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Hero image: gentle scroll and pointer parallax without changing its frame. */
+.rch-home .rch-parallax-frame {
+  overflow: hidden;
+  perspective: 900px;
+}
+
+.rch-home .rch-parallax-frame > img {
+  transform: translate3d(
+    var(--rch-pointer-x, 0px),
+    calc(var(--rch-pointer-y, 0px) + var(--rch-scroll-y, 0px)),
+    0
+  ) scale(1.045);
+  transform-origin: center;
+  will-change: transform;
+  transition: transform 220ms ease-out;
+}
+
+.rch-home .rch-parallax-frame:hover > img {
+  scale: 1.01;
+}
+
+/* Buttons respond gently to pointer interaction. */
+.rch-home .rch-button {
+  position: relative;
+  overflow: hidden;
+  transition:
+    background 220ms ease,
+    color 220ms ease,
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.rch-home .rch-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(51, 43, 38, 0.09);
+}
+
+.rch-home .rch-button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.rch-home .rch-collection-card {
+  transition: transform 300ms ease;
+}
+
+.rch-home .rch-collection-card:hover {
+  transform: translateY(-4px);
+}
+
+.rch-home .rch-collection-image {
+  position: relative;
+}
+
+.rch-home .rch-collection-image img {
+  transition: transform 650ms cubic-bezier(0.2, 0.65, 0.3, 1);
+}
+
+.rch-home .rch-collection-card:hover .rch-collection-image img {
+  transform: scale(1.045);
+}
+
+.rch-home .rch-collection-link {
+  transition: color 220ms ease, border-color 220ms ease;
+}
+
+.rch-home .rch-collection-card:hover .rch-collection-link {
+  color: #967357;
+  border-color: #967357;
+}
+
+@media (max-width: 768px) {
+  .rch-home .rch-parallax-frame > img {
+    transform: translate3d(0, var(--rch-scroll-y, 0px), 0) scale(1.025);
+  }
+
+  .rch-home .rch-collection-card:hover {
+    transform: none;
+  }
+}
+
+@media (hover: none) {
+  .rch-home .rch-parallax-frame > img {
+    transform: translate3d(0, var(--rch-scroll-y, 0px), 0) scale(1.02);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rch-home::before {
+    opacity: 0.02;
+  }
+
+  .rch-home.rch-motion-ready [data-rch-reveal],
+  .rch-home.rch-motion-ready [data-rch-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .rch-home .rch-parallax-frame > img,
+  .rch-home .rch-collection-image img,
+  .rch-home .rch-collection-card,
+  .rch-home .rch-button {
+    transform: none !important;
+    transition: none !important;
+    will-change: auto;
+  }
+}
