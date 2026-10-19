@@ -17,12 +17,30 @@ export default async function handleRequest(
   reactRouterContext,
   context,
 ) {
-  const {nonce, header, NonceProvider} = createContentSecurityPolicy({
-    shop: {
-      checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
-      storeDomain: context.env.PUBLIC_STORE_DOMAIN,
-    },
-  });
+  
+
+const {nonce, header, NonceProvider} = createContentSecurityPolicy({
+  shop: {
+    checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
+    storeDomain: context.env.PUBLIC_STORE_DOMAIN,
+  },
+  imgSrc: [
+    "'self'",
+    "data:",
+    "https://cdn.shopify.com",
+    "https://*.cdninstagram.com",
+    "https://*.fbcdn.net",
+  ],
+  // Videos: Instagram Reel playback
+  mediaSrc: [
+    "'self'",
+    "blob:",
+    "https://*.cdninstagram.com",
+    "https://*.fbcdn.net",
+  ],
+});
+
+
 
   const body = await renderToReadableStream(
     <NonceProvider>

@@ -7,6 +7,7 @@ import {Image} from '@shopify/hydrogen';
 import {ProductItem} from '~/components/ProductItem';
 
 import {ResinProcess} from '~/components/ResinProcess';
+import InstagramReels from "../components/InstagramReels";
 
 export const meta = () => [
 
@@ -269,7 +270,6 @@ useEffect(() => {
 
 
       </section>
-
       <section className="rch-benefits" aria-label="Our promises" data-rch-reveal>
 
         <div className="rch-benefit">Made by hand<span>Thoughtful details in every piece</span></div>
@@ -410,6 +410,9 @@ useEffect(() => {
         </Suspense>
 
       </section>
+
+           <InstagramReels />
+
 
       <section className="rch-story" data-rch-reveal>
 
