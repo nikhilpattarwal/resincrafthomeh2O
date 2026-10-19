@@ -1,0 +1,156 @@
+
+.rch-diwali-bar {
+  position: relative;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 44px;
+  background: #482522;
+  color: #fff7e8;
+  border-bottom: 1px solid #c69b58;
+  font-family: inherit;
+  animation: rch-diwali-enter 0.3s ease-out;
+}
+
+.rch-diwali-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: 1200px;
+  text-align: center;
+}
+
+.rch-diwali-sparkle {
+  color: #e9c47c;
+  font-size: 20px;
+}
+
+.rch-diwali-message {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: 0.2px;
+}
+
+.rch-diwali-message strong {
+  color: #f3d18b;
+  font-weight: 700;
+}
+
+.rch-diwali-separator {
+  margin: 0 9px;
+  color: #c69b58;
+}
+
+.rch-diwali-code {
+  margin-left: 12px;
+  white-space: nowrap;
+}
+
+.rch-diwali-copy {
+  padding: 5px 11px;
+  border: 1px solid #e9c47c;
+  border-radius: 4px;
+  background: transparent;
+  color: #f3d18b;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.rch-diwali-copy:hover {
+  background: #f3d18b;
+  color: #482522;
+}
+
+.rch-diwali-close {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  transform: translateY(-50%);
+  border: 1px solid rgb(255 247 232 / 35%);
+  border-radius: 50%;
+  background: transparent;
+  color: #fff7e8;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.rch-diwali-close:hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+@keyframes rch-diwali-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .rch-diwali-bar {
+    padding: 9px 36px 9px 12px;
+  }
+
+  .rch-diwali-content {
+    gap: 5px 8px;
+  }
+
+  .rch-diwali-sparkle {
+    font-size: 16px;
+  }
+
+  .rch-diwali-message {
+    font-size: 11px;
+  }
+
+  .rch-diwali-separator {
+    margin: 0 4px;
+  }
+
+  .rch-diwali-code {
+    margin-left: 4px;
+  }
+
+  .rch-diwali-copy {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .rch-diwali-close {
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rch-diwali-bar {
+    animation: none;
+  }
+
+  .rch-diwali-copy {
+    transition: none;
+  }
+}

@@ -3,6 +3,8 @@ import {useVariantUrl} from '~/lib/variants';
 import {Link} from 'react-router';
 import {ProductPrice} from './ProductPrice';
 import {useAside} from './Aside';
+import {useState} from 'react';
+
 
 /**
  * A single line item in the cart. It displays the product image, title, price.
@@ -22,6 +24,16 @@ export function CartLineItem({layout, line, childrenMap}) {
   const {close} = useAside();
   const lineItemChildren = childrenMap[id];
   const childrenLabelId = `cart-line-children-${id}`;
+  const [showPersonalization, setShowPersonalization] = useState(false);
+
+const attributes = line.attributes ?? [];
+
+const personalizationAttributes = attributes.filter(({key}) =>
+  [
+    'Personalized name or text',
+    'Customization instructions',
+  ].includes(key) || key.startsWith('Reference image '),
+);
 
   return (
     <li key={id} className="cart-line">
@@ -64,6 +76,35 @@ export function CartLineItem({layout, line, childrenMap}) {
           <CartLineQuantity line={line} />
         </div>
       </div>
+      
+      {personalizationAttributes.length > 0 && (
+        <div className="rch-cart-personalization">
+          <button
+            type="button"
+            className="rch-cart-personalization-toggle"
+            aria-expanded={showPersonalization}
+            onClick={() => setShowPersonalization((prev) => !prev)}
+          >
+            <span aria-hidden="true">ⓘ</span>
+            <span>Personalization details</span>
+            <span className="rch-cart-personalization-arrow">
+              {showPersonalization ? '−' : '+'}
+            </span>
+          </button>
+
+          {showPersonalization && (
+            <div className="rch-cart-personalization-content">
+              {personalizationAttributes.map(({key, value}) => (
+                <div key={key} className="rch-cart-personalization-row">
+                  <strong>{key}:</strong>
+                  <span>{value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
 
       {lineItemChildren ? (
         <div>

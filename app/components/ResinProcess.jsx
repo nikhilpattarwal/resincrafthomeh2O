@@ -400,6 +400,8 @@ export function ResinProcess() {
             className="resin-process__fallback-image"
             loading="eager"
             decoding="async"
+            sizes="(max-width: 768px) 100vw, 50vw"
+
           />
 
           <div className="resin-process__fallback-overlay">

@@ -1,5 +1,5 @@
 
-import {useState} from 'react';
+import {useState,useRef} from 'react';
 import {Link, useNavigate} from 'react-router';
 import {
   LuShoppingCart,
@@ -14,8 +14,44 @@ export function ProductForm({productOptions, selectedVariant}) {
   const navigate = useNavigate();
   const {open} = useAside();
   const [quantity, setQuantity] = useState(1);
-
+     const [customName, setCustomName] = useState('');
+const [customInstructions, setCustomInstructions] = useState('');
+const [referenceImages, setReferenceImages] = useState([]);
   const available = Boolean(selectedVariant?.availableForSale);
+
+const [uploadError, setUploadError] = useState('');
+const imageInputRef = useRef(null);
+
+const handleImageChange = (event) => {
+  const files = Array.from(event.target.files || []);
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  const maxFileSize = 5 * 1024 * 1024;
+  const maxFiles = 5;
+
+  setUploadError('');
+
+  if (files.length > maxFiles) {
+    setUploadError('Please select no more than 5 images.');
+    event.target.value = '';
+    return;
+  }
+
+  const invalidFile = files.find(
+    (file) =>
+      !allowedTypes.includes(file.type) ||
+      file.size > maxFileSize,
+  );
+
+  if (invalidFile) {
+    setUploadError(
+      'Use JPG, PNG, or WebP images, up to 5 MB each.',
+    );
+    event.target.value = '';
+    return;
+  }
+
+  setReferenceImages(files);
+};
 
   return (
     <div className="rch-product-form">
@@ -103,6 +139,8 @@ export function ProductForm({productOptions, selectedVariant}) {
       })}
 
       <div className="rch-product-stock">
+        
+        
         <span
           className={`rch-product-stock__dot ${
             available ? 'is-available' : 'is-unavailable'
@@ -111,7 +149,69 @@ export function ProductForm({productOptions, selectedVariant}) {
         <span>
           {available ? 'Ready to be yours' : 'Currently unavailable'}
         </span>
+        
       </div>
+
+      
+<div className="rch-customization">
+  <h3>Personalize your product</h3>
+
+  <label htmlFor="custom-name">
+    Name or text to personalize
+  </label>
+  <input
+    id="custom-name"
+    type="text"
+    value={customName}
+    onChange={(event) => setCustomName(event.target.value)}
+    maxLength={150}
+    placeholder="Enter a name, date, or message"
+  />
+
+  <label htmlFor="custom-instructions">
+    Customization instructions
+  </label>
+  <textarea
+    id="custom-instructions"
+    value={customInstructions}
+    onChange={(event) =>
+      setCustomInstructions(event.target.value)
+    }
+    maxLength={1000}
+    rows={4}
+    placeholder="Describe your preferred colors, design, or details..."
+  />
+
+  <label htmlFor="reference-images">
+    Reference images (up to 5)
+  </label>
+  <input
+    ref={imageInputRef}
+    id="reference-images"
+    type="file"
+    accept="image/jpeg,image/png,image/webp"
+    multiple
+    onChange={handleImageChange}
+  />
+
+  {referenceImages.length > 0 && (
+    <ul>
+      {referenceImages.map((file) => (
+        <li key={`${file.name}-${file.size}`}>
+          {file.name}
+        </li>
+      ))}
+    </ul>
+  )}
+
+  {uploadError && (
+    <p role="alert" className="rch-customization__error">
+      {uploadError}
+    </p>
+  )}
+</div>
+
+      
 
       
  
@@ -202,17 +302,33 @@ export function ProductForm({productOptions, selectedVariant}) {
     className="rch-add-to-cart"
     disabled={!available}
     onClick={() => open('cart')}
-    lines={
-      selectedVariant
-        ? [
+   
+lines={
+  selectedVariant
+    ? [
+        {
+          merchandiseId: selectedVariant.id,
+          quantity,
+          selectedVariant,
+          attributes: [
             {
-              merchandiseId: selectedVariant.id,
-              quantity,
-              selectedVariant,
+              key: 'Personalized name or text',
+              value: customName.trim(),
             },
-          ]
-        : []
-    }
+            {
+              key: 'Customization instructions',
+              value: customInstructions.trim(),
+            },
+            ...referenceImages.map((file, index) => ({
+              key: `Reference image ${index + 1}`,
+              value: file.name,
+            })),
+          ].filter((attribute) => attribute.value),
+        },
+      ]
+    : []
+}
+
     style={{
       display: 'flex',
       flexDirection: 'row',

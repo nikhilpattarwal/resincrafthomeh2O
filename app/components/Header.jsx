@@ -3,7 +3,7 @@ import {Suspense} from 'react';
 import {Await, NavLink, useAsyncValue} from 'react-router';
 import {Image, useAnalytics, useOptimisticCart} from '@shopify/hydrogen';
 import {useAside} from '~/components/Aside';
-
+import {DiwaliAnnouncement} from '~/components/DiwaliAnnouncement';
 export function Header({header, isLoggedIn, cart, publicStoreDomain}) {
   const {menu} = header;
 
@@ -21,6 +21,7 @@ export function Header({header, isLoggedIn, cart, publicStoreDomain}) {
             src="/orgLogo.png"
             alt="Resin Craft Home"
             className="rch-brand-logo"
+            sizes="(max-width: 768px) 100vw, 50vw"
           />
         </NavLink>
 
@@ -33,7 +34,9 @@ export function Header({header, isLoggedIn, cart, publicStoreDomain}) {
 
         <HeaderCtas isLoggedIn={isLoggedIn} cart={cart} />
       </div>
+        <DiwaliAnnouncement />
     </header>
+    
   );
 }
 

@@ -6464,3 +6464,424 @@ button.reset:hover:not(:has(> *)) {
     padding: 10px 6px;
   }
 }
+
+
+
+
+/* ========================================
+   RCH — Responsive Customization Form
+======================================== */
+
+.rch-customization {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 24px 0;
+  padding: clamp(14px, 3vw, 26px);
+  box-sizing: border-box;
+  border: 1px solid #e8d8c8;
+  border-radius: 4px;
+  background: #fffdf9;
+  color: #332923;
+  box-shadow: 0 3px 14px rgb(80 55 35 / 4%);
+}
+
+/* Heading */
+.rch-customization h3 {
+  margin: 0 0 8px;
+  color: #6b4436;
+  font-family: inherit;
+  font-size: clamp(19px, 2vw, 24px);
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+/* Labels */
+.rch-customization label {
+  display: block;
+  margin-top: 8px;
+  color: #514238;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* Text inputs, file input and textarea */
+.rch-customization input,
+.rch-customization textarea {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  border: 1px solid #dfd1c3;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #332923;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Placeholder colors */
+.rch-customization input::placeholder,
+.rch-customization textarea::placeholder {
+  color: #99877a;
+  opacity: 1;
+}
+
+/* Focus state */
+.rch-customization input:focus-visible,
+.rch-customization textarea:focus-visible {
+  outline: none;
+  border-color: #a47755;
+  box-shadow: 0 0 0 3px rgb(164 119 85 / 15%);
+}
+
+/* Custom instructions */
+.rch-customization textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* File upload */
+.rch-customization input[type="file"] {
+  height: auto;
+  min-height: 52px;
+  padding: 8px;
+  color: #6b5547;
+  background: #fffaf4;
+  cursor: pointer;
+}
+
+.rch-customization input[type="file"]::file-selector-button {
+  max-width: 100%;
+  margin-right: 10px;
+  padding: 9px 12px;
+  border: 1px solid #d8c2ae;
+  border-radius: 3px;
+  background: #f2e7dc;
+  color: #5a392b;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.rch-customization input[type="file"]::file-selector-button:hover {
+  background: #ead8c8;
+}
+
+/* Selected image list */
+.rch-customization ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 20px;
+  color: #665044;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.rch-customization li {
+  overflow-wrap: anywhere;
+}
+
+/* Validation error */
+.rch-customization__error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #efc5c0;
+  border-radius: 4px;
+  background: #fff3f1;
+  color: #a52a21;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* Tablets */
+@media (min-width: 600px) {
+  .rch-customization {
+    gap: 14px;
+    padding: 24px;
+  }
+
+  .rch-customization label {
+    font-size: 14px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .rch-customization {
+    margin: 28px 0;
+    padding: 26px;
+  }
+}
+
+/* Small mobile phones */
+@media (max-width: 380px) {
+  .rch-customization {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .rch-customization h3 {
+    font-size: 19px;
+  }
+
+  .rch-customization input,
+  .rch-customization textarea {
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .rch-customization input[type="file"]::file-selector-button {
+    margin-right: 5px;
+    padding: 8px;
+    font-size: 12px;
+  }
+}
+
+
+
+/* Smaller customization form typography on mobile */
+@media (max-width: 480px) {
+  .rch-customization {
+    padding: 14px;
+    gap: 9px;
+    margin: 16px 0;
+  }
+
+  .rch-customization h3 {
+    font-size: 18px;
+    line-height: 1.35;
+    margin-bottom: 5px;
+  }
+
+  .rch-customization label {
+    font-size: 12px;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+
+  .rch-customization input,
+  .rch-customization textarea {
+    font-size: 14px;
+    line-height: 1.45;
+    padding: 10px;
+    min-height: 40px;
+  }
+
+  .rch-customization textarea {
+    min-height: 95px;
+  }
+
+  .rch-customization input[type="file"] {
+    font-size: 12px;
+    padding: 6px;
+    min-height: 42px;
+  }
+
+  .rch-customization input[type="file"]::file-selector-button {
+    font-size: 11px;
+    padding: 7px 9px;
+  }
+
+  .rch-customization__error {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .rch-customization ul {
+    font-size: 12px;
+  }
+}
+
+/* Extra-small phones */
+@media (max-width: 360px) {
+  .rch-customization {
+    padding: 11px;
+  }
+
+  .rch-customization h3 {
+    font-size: 16px;
+  }
+
+  .rch-customization label {
+    font-size: 11px;
+  }
+
+  .rch-customization input,
+  .rch-customization textarea {
+    font-size: 13px;
+    padding: 9px;
+  }
+
+  .rch-customization input[type="file"] {
+    font-size: 11px;
+  }
+}
+
+
+
+/* =====================================
+   RCH — Smaller Headings Across Store
+===================================== */
+
+/* Product titles */
+.rch-product-card__title {
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+/* Product detail page title */
+.rch-product-title,
+.product-title,
+.product__title {
+  font-size: clamp(22px, 2.5vw, 32px);
+  line-height: 1.25;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+/* Customization form heading */
+.rch-customization h3 {
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+/* All headings on mobile */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 25px;
+    line-height: 1.25;
+  }
+
+  h2 {
+    font-size: 21px;
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-size: 17px;
+    line-height: 1.35;
+  }
+
+  h4 {
+    font-size: 15px;
+    line-height: 1.4;
+  }
+
+  .rch-product-card__title {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .rch-product-title,
+  .product-title,
+  .product__title {
+    font-size: 23px;
+    line-height: 1.3;
+  }
+
+  .rch-customization h3 {
+    font-size: 16px;
+  }
+}
+
+/* Extra-small mobile screens */
+@media (max-width: 360px) {
+  h1 {
+    font-size: 22px;
+  }
+
+  h2 {
+    font-size: 19px;
+  }
+
+  h3 {
+    font-size: 16px;
+  }
+
+  .rch-product-card__title {
+    font-size: 13px;
+  }
+
+  .rch-product-title,
+  .product-title,
+  .product__title {
+    font-size: 21px;
+  }
+
+  .rch-customization h3 {
+    font-size: 15px;
+  }
+}
+
+
+
+
+.rch-cart-personalization {
+  margin-top: 12px;
+  border: 1px solid #ead8d1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fffaf8;
+}
+
+.rch-cart-personalization-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  background: transparent;
+  color: #76503f;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.rch-cart-personalization-arrow {
+  margin-left: auto;
+  font-size: 18px;
+}
+
+.rch-cart-personalization-content {
+  display: grid;
+  gap: 9px;
+  padding: 0 12px 12px;
+}
+
+.rch-cart-personalization-row {
+  display: grid;
+  gap: 3px;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.rch-cart-personalization-row strong {
+  color: #76503f;
+  font-weight: 600;
+}
+
+.rch-cart-personalization-row span {
+  color: #555;
+}
