@@ -1,0 +1,358 @@
+/* Resin Craft Home — responsive Shopify customer account styles */
+:root {
+  --rch-account-cream: #faf6f0;
+  --rch-account-paper: #fffdf9;
+  --rch-account-ink: #382c25;
+  --rch-account-muted: #786d64;
+  --rch-account-accent: #b75d43;
+  --rch-account-accent-dark: #91432f;
+  --rch-account-border: #e8dbce;
+  --rch-account-soft: #f2e8dd;
+  --rch-account-danger: #a13f35;
+  --rch-account-radius: 14px;
+  --rch-account-shadow: 0 8px 28px rgb(56 44 37 / 5%);
+}
+
+/* Add these classes to the shared account layout route. */
+.rch-account-shell,
+.rch-account-shell * { box-sizing: border-box; }
+
+.rch-account-shell { width: 100%; min-width: 0; color: var(--rch-account-ink); }
+
+.rch-account-welcome,
+.rch-account-nav {
+  width: min(1180px, calc(100% - 48px));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.rch-account-welcome { padding-top: 36px; }
+.rch-account-welcome h1 {
+  margin: 0;
+  color: var(--rch-account-ink);
+  font: 400 clamp(28px, 3vw, 40px)/1.2 Georgia, "Times New Roman", serif;
+}
+
+.rch-account-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--rch-account-border);
+}
+
+.rch-account-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 10px 14px;
+  border-radius: 7px;
+  color: var(--rch-account-muted);
+  font-size: 14px;
+  text-decoration: none;
+  transition: color .2s ease, background .2s ease;
+}
+.rch-account-nav a:hover,
+.rch-account-nav a[aria-current="page"],
+.rch-account-nav a.active {
+  color: var(--rch-account-accent-dark);
+  background: var(--rch-account-soft);
+}
+.rch-account-nav a[aria-current="page"],
+.rch-account-nav a.active { font-weight: 600; }
+
+.rch-account-page {
+  width: min(1080px, calc(100% - 48px));
+  min-width: 0;
+  margin: 0 auto;
+  padding: 44px 0 88px;
+  color: var(--rch-account-ink);
+}
+
+.rch-account-heading { max-width: 720px; margin: 0 0 30px; }
+.rch-account-eyebrow {
+  display: inline-block;
+  color: var(--rch-account-accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .2em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+.rch-account-heading h2 {
+  margin: 10px 0 8px;
+  color: var(--rch-account-ink);
+  font: 400 clamp(32px, 4vw, 48px)/1.12 Georgia, "Times New Roman", serif;
+  letter-spacing: -.025em;
+}
+.rch-account-heading p { margin: 0; color: var(--rch-account-muted); font-size: 15px; line-height: 1.7; }
+
+.rch-account-card {
+  min-width: 0;
+  padding: clamp(20px, 3vw, 32px);
+  margin: 0 0 24px;
+  background: var(--rch-account-paper);
+  border: 1px solid var(--rch-account-border);
+  border-radius: var(--rch-account-radius);
+  box-shadow: var(--rch-account-shadow);
+}
+.rch-account-card legend {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0 0 22px;
+  color: var(--rch-account-ink);
+  font-size: 17px;
+  font-weight: 650;
+}
+.rch-account-card fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.rch-account-card label {
+  display: block;
+  align-self: end;
+  margin: 10px 0 0;
+  color: var(--rch-account-ink);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.rch-account-card input:not([type="checkbox"]):not([type="hidden"]),
+.rch-account-card select,
+.rch-account-card textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px 14px;
+  margin: 0;
+  color: var(--rch-account-ink);
+  background: #fff;
+  border: 1px solid #dfd1c4;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+.rch-account-card textarea { min-height: 110px; resize: vertical; }
+.rch-account-card input::placeholder,
+.rch-account-card textarea::placeholder { color: #9b8d82; opacity: 1; }
+.rch-account-card input:focus-visible,
+.rch-account-card select:focus-visible,
+.rch-account-card textarea:focus-visible {
+  outline: 0;
+  border-color: var(--rch-account-accent);
+  box-shadow: 0 0 0 3px rgb(183 93 67 / 14%);
+}
+.rch-account-card input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  margin: 0 8px 0 0;
+  accent-color: var(--rch-account-accent);
+  vertical-align: middle;
+}
+.rch-account-card button,
+.rch-account-page button.rch-account-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 12px 22px;
+  margin-top: 22px;
+  color: #fff;
+  background: var(--rch-account-ink);
+  border: 1px solid var(--rch-account-ink);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease;
+}
+.rch-account-card button:hover:not(:disabled) {
+  background: var(--rch-account-accent-dark);
+  border-color: var(--rch-account-accent-dark);
+}
+.rch-account-card button:active:not(:disabled) { transform: translateY(1px); }
+.rch-account-card button:focus-visible,
+.rch-account-nav a:focus-visible,
+.rch-account-page a:focus-visible { outline: 3px solid rgb(183 93 67 / 35%); outline-offset: 3px; }
+.rch-account-card button:disabled { cursor: wait; opacity: .62; }
+.rch-account-card button[formmethod="DELETE"] {
+  margin-left: 10px;
+  color: var(--rch-account-danger);
+  background: transparent;
+  border-color: #e5c5bd;
+}
+.rch-account-card button[formmethod="DELETE"]:hover:not(:disabled) {
+  color: #fff;
+  background: var(--rch-account-danger);
+  border-color: var(--rch-account-danger);
+}
+.rch-account-page mark {
+  display: block;
+  padding: 12px 14px;
+  margin: 12px 0;
+  color: #8f3028;
+  background: #fff0ed;
+  border: 1px solid #f0d0ca;
+  border-radius: 7px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.rch-account-page hr { margin: 30px 0; border: 0; border-top: 1px solid var(--rch-account-border); }
+.rch-account-page a { color: var(--rch-account-accent-dark); text-underline-offset: 4px; }
+.rch-account-page a:hover { color: var(--rch-account-ink); }
+
+/* Profile form */
+.account-profile .rch-account-card { width: min(100%, 720px); }
+.account-profile .rch-account-card fieldset { grid-template-columns: 1fr; }
+
+/* Address create/edit cards */
+.account-addresses .rch-account-card { width: min(100%, 900px); }
+.account-addresses .rch-account-card fieldset { display: flex; flex-direction: column; }
+.account-addresses .rch-account-card fieldset > div { width: 100%; }
+.account-addresses form + form { margin-top: 18px; }
+
+/* Add these classes to the existing orders route for matching styling. */
+.rch-account-orders .rch-order-filters {
+  width: min(100%, 760px);
+  padding: 22px;
+  margin: 0 0 28px;
+  background: var(--rch-account-paper);
+  border: 1px solid var(--rch-account-border);
+  border-radius: var(--rch-account-radius);
+}
+.rch-account-orders .rch-order-filters fieldset {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 0;
+  border: 0;
+}
+.rch-account-orders .rch-order-filters input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  padding: 12px;
+  border: 1px solid #dfd1c4;
+  border-radius: 7px;
+  background: #fff;
+  font: inherit;
+}
+.rch-account-orders .rch-order-filters button {
+  min-height: 44px;
+  padding: 11px 20px;
+  margin-top: 16px;
+  color: #fff;
+  background: var(--rch-account-ink);
+  border: 1px solid var(--rch-account-ink);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.rch-account-orders .rch-order-card {
+  padding: 22px;
+  margin-bottom: 16px;
+  background: var(--rch-account-paper);
+  border: 1px solid var(--rch-account-border);
+  border-radius: var(--rch-account-radius);
+  overflow-wrap: anywhere;
+}
+.rch-account-orders .rch-empty-state {
+  padding: 34px 24px;
+  background: var(--rch-account-paper);
+  border: 1px dashed #d9c6b5;
+  border-radius: var(--rch-account-radius);
+  color: var(--rch-account-muted);
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .rch-account-welcome,
+  .rch-account-nav { width: calc(100% - 32px); }
+  .rch-account-welcome { padding-top: 28px; }
+  .rch-account-nav { gap: 4px; margin-top: 18px; padding-bottom: 12px; }
+  .rch-account-nav a { min-height: 40px; padding: 9px 11px; font-size: 13px; }
+  .rch-account-page { width: calc(100% - 32px); padding: 32px 0 56px; }
+  .rch-account-heading { margin-bottom: 22px; }
+  .rch-account-card { padding: 20px 16px; border-radius: 10px; }
+}
+@media (max-width: 520px) {
+  .rch-account-welcome h1 { font-size: 29px; }
+  .rch-account-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .rch-account-nav a { justify-content: center; padding: 10px 8px; background: rgb(242 232 221 / 55%); }
+  .rch-account-nav a:last-child { grid-column: 1 / -1; }
+  .rch-account-card fieldset,
+  .account-addresses .rch-account-card fieldset { display: flex; flex-direction: column; }
+  .rch-account-orders .rch-order-filters fieldset { grid-template-columns: minmax(0, 1fr); }
+  .rch-account-card button { width: 100%; }
+  .rch-account-card button[formmethod="DELETE"] { margin-left: 0; }
+  .rch-account-orders .rch-order-filters { padding: 18px 14px; }
+  .rch-account-orders .rch-order-card { padding: 17px 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rch-account-card *,
+  .rch-account-nav a { transition: none !important; scroll-behavior: auto !important; }
+}
+
+
+
+.rch-account-welcome p {
+  margin: 10px 0 0;
+  color: var(--rch-account-muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.rch-account-nav-link.is-pending {
+  opacity: 0.6;
+}
+
+.rch-account-logout {
+  display: inline-flex;
+  margin: 0;
+}
+
+.rch-account-logout button {
+  min-height: 42px;
+  padding: 10px 14px;
+  color: var(--rch-account-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.rch-account-logout button:hover {
+  color: var(--rch-account-accent-dark);
+  background: var(--rch-account-soft);
+}
+
+.rch-account-content {
+  min-width: 0;
+}
+
+@media (max-width: 520px) {
+  .rch-account-logout {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+
+  .rch-account-logout button {
+    width: 100%;
+  }
+}

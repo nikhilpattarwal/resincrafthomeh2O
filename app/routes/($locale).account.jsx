@@ -1,3 +1,4 @@
+
 import {
   data as remixData,
   Form,
@@ -16,11 +17,15 @@ export function shouldRevalidate() {
  */
 export async function loader({context}) {
   const {customerAccount} = context;
-  const {data, errors} = await customerAccount.query(CUSTOMER_DETAILS_QUERY, {
-    variables: {
-      language: customerAccount.i18n.language,
+
+  const {data, errors} = await customerAccount.query(
+    CUSTOMER_DETAILS_QUERY,
+    {
+      variables: {
+        language: customerAccount.i18n.language,
+      },
     },
-  });
+  );
 
   if (errors?.length || !data?.customer) {
     throw new Error('Customer not found');
@@ -40,46 +45,55 @@ export default function AccountLayout() {
   /** @type {LoaderReturnData} */
   const {customer} = useLoaderData();
 
-  const heading = customer
-    ? customer.firstName
-      ? `Welcome, ${customer.firstName}`
-      : `Welcome to your account.`
-    : 'Account Details';
+  const heading = customer?.firstName
+    ? `Welcome, ${customer.firstName}`
+    : 'Welcome to your account';
 
   return (
-    <div className="account">
-      <h1>{heading}</h1>
-      <br />
+    <main className="rch-account-shell">
+      <header className="rch-account-welcome">
+        <h1>{heading}</h1>
+        <p>Manage your orders, personal details, and delivery addresses.</p>
+      </header>
+
       <AccountMenu />
-      <br />
-      <br />
-      <Outlet context={{customer}} />
-    </div>
+
+      <div className="rch-account-content">
+        <Outlet context={{customer}} />
+      </div>
+    </main>
   );
 }
 
 function AccountMenu() {
-  function isActiveStyle({isActive, isPending}) {
-    return {
-      fontWeight: isActive ? 'bold' : undefined,
-      color: isPending ? 'grey' : 'black',
-    };
-  }
+  const links = [
+    {to: '/account/orders', label: 'Orders'},
+    {to: '/account/profile', label: 'Profile'},
+    {to: '/account/addresses', label: 'Addresses'},
+  ];
 
   return (
-    <nav role="navigation">
-      <NavLink to="/account/orders" style={isActiveStyle}>
-        Orders &nbsp;
-      </NavLink>
-      &nbsp;|&nbsp;
-      <NavLink to="/account/profile" style={isActiveStyle}>
-        &nbsp; Profile &nbsp;
-      </NavLink>
-      &nbsp;|&nbsp;
-      <NavLink to="/account/addresses" style={isActiveStyle}>
-        &nbsp; Addresses &nbsp;
-      </NavLink>
-      &nbsp;|&nbsp;
+    <nav className="rch-account-nav" aria-label="Account navigation">
+      {links.map(({to, label}) => (
+        <NavLink
+          key={to}
+          to={to}
+          end
+          prefetch="intent"
+          className={({isActive, isPending}) =>
+            [
+              'rch-account-nav-link',
+              isActive ? 'is-active' : '',
+              isPending ? 'is-pending' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')
+          }
+        >
+          {label}
+        </NavLink>
+      ))}
+
       <Logout />
     </nav>
   );
@@ -87,8 +101,12 @@ function AccountMenu() {
 
 function Logout() {
   return (
-    <Form className="account-logout" method="POST" action="/account/logout">
-      &nbsp;<button type="submit">Sign out</button>
+    <Form
+      className="rch-account-logout"
+      method="POST"
+      action="/account/logout"
+    >
+      <button type="submit">Sign out</button>
     </Form>
   );
 }
