@@ -1,0 +1,85 @@
+
+.rch-order-tracking {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  border: 1px solid #e6d5c5;
+  border-radius: 14px;
+  background: #fffdf9;
+}
+
+.rch-order-tracking h3 {
+  margin: 0 0 1rem;
+  font-size: 1.35rem;
+}
+
+.rch-order-tracking-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.rch-order-tracking-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #eee2d7;
+  border-radius: 10px;
+}
+
+.rch-order-tracking-item p {
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.rch-order-tracking-company {
+  font-weight: 600;
+}
+
+.rch-order-track-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+  border-radius: 7px;
+  background: #332821;
+  color: #fff;
+  text-decoration: none;
+}
+
+.rch-order-track-button:hover {
+  background: #5b4030;
+}
+
+.rch-order-external-tracking {
+  color: #805a40;
+  text-decoration: underline;
+}
+
+.rch-order-tracking-pending {
+  padding: 1rem;
+  border-radius: 8px;
+  background: #f7f0e9;
+}
+
+.rch-order-tracking-pending p {
+  margin: 0.35rem 0;
+}
+
+@media (max-width: 600px) {
+  .rch-order-tracking {
+    padding: 1rem;
+  }
+
+  .rch-order-tracking-item {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .rch-order-track-button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}

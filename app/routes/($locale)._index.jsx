@@ -192,11 +192,11 @@ useEffect(() => {
 
         <div className="rch-hero-copy" data-rch-reveal data-rch-delay="1">
 
-          <span className="rch-eyebrow">Handcrafted with intention</span>
+          <span className="rch-eyebrow mbh-hd">Handcrafted with intention</span>
 
-          <h1 className="rch-editorial">Little things,<br />made to last.</h1>
+          <h1 className="rch-editorial mbh-hd">Little things,<br />made to last.</h1>
 
-          <p>
+          <p className=" mbh-hd" data-rch-delay="2">
 
             Thoughtfully handcrafted resin keepsakes for the people, places,
 

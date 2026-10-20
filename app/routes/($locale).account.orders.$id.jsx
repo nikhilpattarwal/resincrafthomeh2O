@@ -39,7 +39,15 @@ export async function loader({params, context}) {
   const discountApplications = order.discountApplications.nodes;
 
   // Get fulfillment status from first fulfillment node
-  const fulfillmentStatus = order.fulfillments.nodes[0]?.status ?? 'N/A';
+  // const fulfillmentStatus = order.fulfillments.nodes[0]?.status ?? 'N/A';
+  const fulfillments = order.fulfillments?.nodes ?? [];
+
+  const fulfillmentStatus =
+    fulfillments[0]?.status ?? order.fulfillmentStatus ?? 'N/A';
+
+  const trackingInfo = fulfillments.flatMap(
+    (fulfillment) => fulfillment.trackingInfo ?? [],
+  );
 
   // Get first discount value with proper type checking
   const firstDiscount = discountApplications[0]?.value;
@@ -63,6 +71,7 @@ export async function loader({params, context}) {
   };
 }
 
+
 export default function OrderRoute() {
   /** @type {LoaderReturnData} */
   const {
@@ -71,16 +80,21 @@ export default function OrderRoute() {
     discountValue,
     discountPercentage,
     fulfillmentStatus,
+    trackingInfo,
   } = useLoaderData();
+
   return (
     <div className="account-order">
       <h2>Order {order.name}</h2>
-      <p>Placed on {new Date(order.processedAt).toDateString()}</p>
+      <p>
+        Placed on {new Date(order.processedAt).toDateString()}
+      </p>
+
       {order.confirmationNumber && (
         <p>Confirmation: {order.confirmationNumber}</p>
       )}
-      <br />
-      <div>
+
+      <div className="rch-order-items">
         <table>
           <thead>
             <tr>
@@ -90,100 +104,146 @@ export default function OrderRoute() {
               <th scope="col">Total</th>
             </tr>
           </thead>
+
           <tbody>
-            {lineItems.map((lineItem, lineItemIndex) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <OrderLineRow key={lineItemIndex} lineItem={lineItem} />
+            {lineItems.map((lineItem) => (
+              <OrderLineRow
+                key={lineItem.id}
+                lineItem={lineItem}
+              />
             ))}
           </tbody>
+
           <tfoot>
             {((discountValue && discountValue.amount) ||
               discountPercentage) && (
               <tr>
                 <th scope="row" colSpan={3}>
-                  <p>Discounts</p>
-                </th>
-                <th scope="row">
-                  <p>Discounts</p>
+                  Discounts
                 </th>
                 <td>
                   {discountPercentage ? (
                     <span>-{discountPercentage}% OFF</span>
                   ) : (
-                    discountValue && <Money data={discountValue} />
+                    <Money data={discountValue} />
                   )}
                 </td>
               </tr>
             )}
+
             <tr>
-              <th scope="row" colSpan={3}>
-                <p>Subtotal</p>
-              </th>
-              <th scope="row">
-                <p>Subtotal</p>
-              </th>
-              <td>
-                <Money data={order.subtotal} />
-              </td>
+              <th scope="row" colSpan={3}>Subtotal</th>
+              <td><Money data={order.subtotal} /></td>
             </tr>
+
             <tr>
-              <th scope="row" colSpan={3}>
-                Tax
-              </th>
-              <th scope="row">
-                <p>Tax</p>
-              </th>
-              <td>
-                <Money data={order.totalTax} />
-              </td>
+              <th scope="row" colSpan={3}>Tax</th>
+              <td><Money data={order.totalTax} /></td>
             </tr>
+
             <tr>
-              <th scope="row" colSpan={3}>
-                Total
-              </th>
-              <th scope="row">
-                <p>Total</p>
-              </th>
-              <td>
-                <Money data={order.totalPrice} />
-              </td>
+              <th scope="row" colSpan={3}>Total</th>
+              <td><Money data={order.totalPrice} /></td>
             </tr>
           </tfoot>
         </table>
-        <div>
-          <h3>Shipping Address</h3>
-          {order?.shippingAddress ? (
-            <address>
-              <p>{order.shippingAddress.name}</p>
-              {order.shippingAddress.formatted ? (
-                <p>{order.shippingAddress.formatted}</p>
-              ) : (
-                ''
-              )}
-              {order.shippingAddress.formattedArea ? (
-                <p>{order.shippingAddress.formattedArea}</p>
-              ) : (
-                ''
-              )}
-            </address>
-          ) : (
-            <p>No shipping address defined</p>
-          )}
-          <h3>Status</h3>
-          <div>
-            <p>{fulfillmentStatus}</p>
-          </div>
-        </div>
       </div>
-      <br />
-      <p>
-        <a target="_blank" href={order.statusPageUrl} rel="noreferrer">
-          View Order Status →
-        </a>
-      </p>
+
+      <section className="rch-order-address">
+        <h3>Shipping address</h3>
+
+        {order.shippingAddress ? (
+          <address>
+            {order.shippingAddress.name && (
+              <p>{order.shippingAddress.name}</p>
+            )}
+
+            {order.shippingAddress.formatted && (
+              <p>{order.shippingAddress.formatted}</p>
+            )}
+
+            {order.shippingAddress.formattedArea && (
+              <p>{order.shippingAddress.formattedArea}</p>
+            )}
+          </address>
+        ) : (
+          <p>No shipping address defined.</p>
+        )}
+
+        <h3>Order status</h3>
+        <p>{fulfillmentStatus || 'Unfulfilled'}</p>
+      </section>
+
+      <section className="rch-order-tracking">
+        <h3>Shipment tracking</h3>
+
+        {trackingInfo?.length > 0 ? (
+          <div className="rch-order-tracking-list">
+            {trackingInfo.map((tracking, index) => (
+              <article
+                className="rch-order-tracking-item"
+                key={`${tracking.number || 'shipment'}-${index}`}
+              >
+                <div>
+                  <p className="rch-order-tracking-company">
+                    {tracking.company || 'Shipping carrier'}
+                  </p>
+
+                  <p>
+                    AWB: {tracking.number || 'Not available'}
+                  </p>
+                </div>
+
+                {tracking.number && (
+                  <a
+                    className="rch-order-track-button"
+                    href={`/track-order?awb=${encodeURIComponent(
+                      tracking.number,
+                    )}`}
+                  >
+                    Track shipment →
+                  </a>
+                )}
+
+                {tracking.url && (
+                  <a
+                    className="rch-order-external-tracking"
+                    href={tracking.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Open carrier tracking ↗
+                  </a>
+                )}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="rch-order-tracking-pending">
+            <p>Tracking information is not available yet.</p>
+            <p>
+              Once your shipment has a tracking number, it will
+              appear here automatically.
+            </p>
+          </div>
+        )}
+      </section>
+
+      {order.statusPageUrl && (
+        <p className="rch-order-status-link">
+          <a
+            href={order.statusPageUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View Shopify order status →
+          </a>
+        </p>
+      )}
     </div>
   );
 }
+
 
 /**
  * @param {{lineItem: OrderLineItemFullFragment}}

@@ -1,9 +1,10 @@
-// NOTE: https://shopify.dev/docs/api/customer/latest/queries/order
+
 export const CUSTOMER_ORDER_QUERY = `#graphql
   fragment OrderMoney on MoneyV2 {
     amount
     currencyCode
   }
+
   fragment DiscountApplication on DiscountApplication {
     value {
       __typename
@@ -15,6 +16,7 @@ export const CUSTOMER_ORDER_QUERY = `#graphql
       }
     }
   }
+
   fragment OrderLineItemFull on LineItem {
     id
     title
@@ -42,6 +44,7 @@ export const CUSTOMER_ORDER_QUERY = `#graphql
     }
     variantTitle
   }
+
   fragment Order on Order {
     id
     name
@@ -49,11 +52,18 @@ export const CUSTOMER_ORDER_QUERY = `#graphql
     statusPageUrl
     fulfillmentStatus
     processedAt
-    fulfillments(first: 1) {
+
+    fulfillments(first: 10) {
       nodes {
         status
+        trackingInfo {
+          number
+          url
+          company
+        }
       }
     }
+
     totalTax {
       ...OrderMoney
     }
@@ -79,6 +89,7 @@ export const CUSTOMER_ORDER_QUERY = `#graphql
       }
     }
   }
+
   query Order($orderId: ID!, $language: LanguageCode)
     @inContext(language: $language) {
     order(id: $orderId) {

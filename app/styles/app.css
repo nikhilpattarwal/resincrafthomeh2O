@@ -7726,3 +7726,23 @@ button.reset:hover:not(:has(> *)) {
     margin-left: 6px;
   }
 }
+
+
+@media screen and (max-width: 640px) {
+  .rch-home .rch-hero-copy .mbh-hd {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .rch-home .rch-hero-copy {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .rch-home .rch-hero-copy .rch-button {
+    display: inline-flex !important;
+    visibility: visible !important;
+  }
+}
