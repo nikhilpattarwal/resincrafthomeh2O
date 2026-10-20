@@ -12,11 +12,12 @@ const groups = [
       {label: 'Search', to: '/search'},
     ],
   },
-  {
+   {
     title: 'HELP',
     links: [
       {label: 'Contact us', to: '/pages/contact-us'},
       {label: 'Shipping', to: '/pages/shipping'},
+      {label: 'Track my order', to: '/track-order'},
       {label: 'Returns & refunds', to: '/pages/returns-refund'},
     ],
   },

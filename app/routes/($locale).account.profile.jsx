@@ -88,10 +88,14 @@ export default function AccountProfile() {
   const customer = action?.customer ?? account?.customer;
 
   return (
-    <div className="account-profile">
+      <div className="rch-account-page account-profile">
+    <div className="rch-account-heading">
+      <span className="rch-account-eyebrow">YOUR ACCOUNT</span>
       <h2>My profile</h2>
-      <br />
-      <Form method="PUT">
+      <p>Manage your personal information.</p>
+    </div>
+
+    <Form method="PUT" className="rch-account-card">
         <legend>Personal information</legend>
         <fieldset>
           <label htmlFor="firstName">First name</label>

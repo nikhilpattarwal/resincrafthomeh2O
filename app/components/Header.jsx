@@ -4,6 +4,7 @@ import {Await, NavLink, useAsyncValue} from 'react-router';
 import {Image, useAnalytics, useOptimisticCart} from '@shopify/hydrogen';
 import {useAside} from '~/components/Aside';
 import {DiwaliAnnouncement} from '~/components/DiwaliAnnouncement';
+import {Search, UserRound, ShoppingBag} from 'lucide-react';
 export function Header({header, isLoggedIn, cart, publicStoreDomain}) {
   const {menu} = header;
 
@@ -95,11 +96,18 @@ function HeaderCtas({isLoggedIn, cart}) {
       <NavLink
         prefetch="intent"
         to="/account"
-        className="rch-action-link rch-account-link"
+        className="rch-action-button rch-account-link"
+        aria-label="Sign in or view account"
+        title="Account"
       >
-        <Suspense fallback="Account">
-          <Await resolve={isLoggedIn} errorElement="Account">
-            {(loggedIn) => (loggedIn ? 'Account' : 'Sign in')}
+        <Suspense fallback={<UserRound size={21} />}>
+          <Await resolve={isLoggedIn} errorElement={<UserRound size={21} />}>
+            {(loggedIn) => (
+              <UserRound
+                size={21}
+                className={loggedIn ? 'rch-icon-account' : 'rch-icon-signin'}
+              />
+            )}
           </Await>
         </Suspense>
       </NavLink>
@@ -133,11 +141,12 @@ function SearchToggle() {
   return (
     <button
       type="button"
-      className="rch-action-button"
+      className="rch-action-button rch-search-button"
       onClick={() => open('search')}
       aria-label="Open search"
+      title="Search"
     >
-      Search
+      <Search size={21} />
     </button>
   );
 }
@@ -147,22 +156,12 @@ function CartBadge({count}) {
   const {publish, shop, cart, prevCart} = useAnalytics();
 
   return (
-    <a
+    <button
+      type="button"
       className="rch-cart-link"
-      href="/cart"
       aria-label={`Shopping bag, ${count} items`}
-      onClick={(event) => {
-        if (
-          event.button !== 0 ||
-          event.metaKey ||
-          event.ctrlKey ||
-          event.shiftKey ||
-          event.altKey
-        ) {
-          return;
-        }
-
-        event.preventDefault();
+      title="Shopping bag"
+      onClick={() => {
         open('cart');
 
         publish('cart_viewed', {
@@ -176,9 +175,9 @@ function CartBadge({count}) {
         });
       }}
     >
-      <span>Bag</span>
+      <ShoppingBag size={22} className="rch-icon-bag" />
       <span className="rch-cart-count">{count}</span>
-    </a>
+    </button>
   );
 }
 

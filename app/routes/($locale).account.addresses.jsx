@@ -15,7 +15,7 @@ import {
  * @type {Route.MetaFunction}
  */
 export const meta = () => {
-  return [{title: 'Addresses'}];
+  return [{title: 'Addresses'}];  
 };
 
 /**
@@ -254,8 +254,12 @@ export default function Addresses() {
   const {defaultAddress, addresses} = customer;
 
   return (
-    <div className="account-addresses">
-      <h2>Addresses</h2>
+    <div className="rch-account-page account-addresses">
+      <div className="rch-account-heading">
+        <span className="rch-account-eyebrow">YOUR ACCOUNT</span>
+        <h2>My addresses</h2>
+        <p>Save and manage your delivery addresses.</p>
+      </div>
       <br />
       <div>
         <div>

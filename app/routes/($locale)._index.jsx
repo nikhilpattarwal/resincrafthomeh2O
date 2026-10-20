@@ -230,7 +230,7 @@ useEffect(() => {
         activeHeroImage === index ? 'is-active' : ''
       }`}
       loading={index === 0 ? 'eager' : 'lazy'}
-      fetchPriority={index === 0 ? 'high' : 'auto'}
+      fetchpriority={index === 0 ? 'high' : 'auto'}
     />
   ))}
 
@@ -521,6 +521,8 @@ useEffect(() => {
 
         <Link to="/pages/contact-us">Contact us</Link>
 <Link to="/pages/shipping">Shipping</Link>
+<Link to="/track-order">Track my order</Link>
+
 <Link to="/pages/returns-refund">Returns & refunds</Link>
 
         </div>

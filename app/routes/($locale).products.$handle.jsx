@@ -1,5 +1,5 @@
 
-import {useLoaderData} from 'react-router';
+import {Link, useLoaderData} from 'react-router';
 import {
   getSelectedProductOptions,
   Analytics,
@@ -94,13 +94,17 @@ export default function Product() {
 
   return (
     <main className="rch-product-page">
-      <nav className="rch-breadcrumb" aria-label="Breadcrumb">
-        <a href="/">Home</a>
-        <span aria-hidden="true">/</span>
-        <a href="/collections/all">Shop</a>
-        <span aria-hidden="true">/</span>
-        <span>{title}</span>
-      </nav>
+     import { Link } from 'react-router';
+
+<nav className="rch-breadcrumb" aria-label="Breadcrumb">
+  <Link to="/">Home</Link>
+  <span aria-hidden="true">/</span>
+  <Link to="/collections/all">Shop</Link>
+  <span aria-hidden="true">/</span>
+  <Link to="/track-order">Track Order</Link>
+  <span aria-hidden="true">/</span>
+  <span aria-current="page">{title}</span>
+</nav>
 
       <section className="rch-product-layout">
         <div className="rch-product-visual">
