@@ -54,15 +54,15 @@ export const CUSTOMER_ORDER_QUERY = `#graphql
     processedAt
 
     fulfillments(first: 10) {
-      nodes {
-        status
-        trackingInfo {
-          number
-          url
-          company
-        }
-      }
+  nodes {
+    status
+    trackingInformation {
+      number
+      url
+      company
     }
+  }
+}
 
     totalTax {
       ...OrderMoney
