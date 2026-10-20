@@ -475,7 +475,7 @@ useEffect(() => {
 
           </p>
 
-          <Link className="rch-button" to="/pages/about-us">Our story</Link>
+          <Link className="rch-button" to="/pages/our-story">Our story</Link>
 
         </div>
 

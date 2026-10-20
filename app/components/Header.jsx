@@ -202,7 +202,7 @@ const FALLBACK_HEADER_MENU = {
   items: [
     {id: 'home', title: 'Home', url: '/'},
     {id: 'shop', title: 'Shop', url: '/collections'},
-    {id: 'story', title: 'Our Story', url: '/pages/about'},
+    {id: 'story', title: 'Our Story', url: '/pages/our-story'},
     {id: 'journal', title: 'Journal', url: '/blogs/journal'},
   ],
 };

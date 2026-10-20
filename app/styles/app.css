@@ -1245,15 +1245,15 @@ button.reset:hover:not(:has(> *)) {
 
 
 
-.cart-main.with-discount {
+/* .cart-main.with-discount {
 
   max-height: calc(
 
     100vh - var(--cart-aside-summary-height-with-discount)
 
-  );
+  ); 
 
-}
+} */
 
 
 
