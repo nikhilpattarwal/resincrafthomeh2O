@@ -14,6 +14,7 @@ import {ProductForm} from '~/components/ProductForm';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {ProductGallery} from '~/components/ProductGallery';
 
+
 export const meta = ({data}) => {
   const product = data?.product;
   return [
@@ -94,8 +95,6 @@ export default function Product() {
 
   return (
     <main className="rch-product-page">
-     import { Link } from 'react-router';
-
 <nav className="rch-breadcrumb" aria-label="Breadcrumb">
   <Link to="/">Home</Link>
   <span aria-hidden="true">/</span>
