@@ -3382,7 +3382,7 @@ button.reset:hover:not(:has(> *)) {
 
             grid-template-columns: 1fr;
 
-            margin: 0 8px;
+            margin: 0 0px;
 
           }
 
