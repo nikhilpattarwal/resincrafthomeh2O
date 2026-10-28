@@ -17,18 +17,52 @@ export function ProductForm({productOptions, selectedVariant}) {
      const [customName, setCustomName] = useState('');
 const [customInstructions, setCustomInstructions] = useState('');
 const [referenceImages, setReferenceImages] = useState([]);
+const [isUploadingImages, setIsUploadingImages] = useState(false);
   const available = Boolean(selectedVariant?.availableForSale);
 
 const [uploadError, setUploadError] = useState('');
 const imageInputRef = useRef(null);
 
-const handleImageChange = (event) => {
+// const handleImageChange = (event) => {
+//   const files = Array.from(event.target.files || []);
+//   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+//   const maxFileSize = 5 * 1024 * 1024;
+//   const maxFiles = 5;
+
+//   setUploadError('');
+
+//   if (files.length > maxFiles) {
+//     setUploadError('Please select no more than 5 images.');
+//     event.target.value = '';
+//     return;
+//   }
+
+//   const invalidFile = files.find(
+//     (file) =>
+//       !allowedTypes.includes(file.type) ||
+//       file.size > maxFileSize,
+//   );
+
+//   if (invalidFile) {
+//     setUploadError(
+//       'Use JPG, PNG, or WebP images, up to 5 MB each.',
+//     );
+//     event.target.value = '';
+//     return;
+//   }
+
+//   setReferenceImages(files);
+// };
+
+const handleImageChange = async (event) => {
   const files = Array.from(event.target.files || []);
   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
   const maxFileSize = 5 * 1024 * 1024;
   const maxFiles = 5;
 
   setUploadError('');
+  setReferenceImages([]);
+  setReferenceImageUrls([]);
 
   if (files.length > maxFiles) {
     setUploadError('Please select no more than 5 images.');
@@ -50,7 +84,58 @@ const handleImageChange = (event) => {
     return;
   }
 
+  if (files.length === 0) return;
+
   setReferenceImages(files);
+  setIsUploadingImages(true);
+
+  try {
+    const cloudName =
+      import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset =
+      import.meta.env.PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+    if (!cloudName || !uploadPreset) {
+      throw new Error('Cloudinary configuration is missing.');
+    }
+
+    const urls = await Promise.all(
+      files.map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', uploadPreset);
+
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+          {
+            method: 'POST',
+            body: formData,
+          },
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.secure_url) {
+          throw new Error(
+            result.error?.message || `Failed to upload ${file.name}`,
+          );
+        }
+
+        return result.secure_url;
+      }),
+    );
+
+    setReferenceImageUrls(urls);
+  } catch (error) {
+    console.error('Reference image upload failed:', error);
+    setReferenceImages([]);
+    setReferenceImageUrls([]);
+    setUploadError(
+      error.message || 'Image upload failed. Please try again.',
+    );
+  } finally {
+    setIsUploadingImages(false);
+  }
 };
 
   return (
@@ -194,21 +279,37 @@ const handleImageChange = (event) => {
     onChange={handleImageChange}
   />
 
-  {referenceImages.length > 0 && (
-    <ul>
-      {referenceImages.map((file) => (
-        <li key={`${file.name}-${file.size}`}>
-          {file.name}
-        </li>
-      ))}
-    </ul>
-  )}
+ {referenceImages.length > 0 && (
+  <ul>
+    {referenceImages.map((file) => (
+      <li key={`${file.name}-${file.size}`}>
+        {file.name}
+      </li>
+    ))}
+  </ul>
+)}
 
-  {uploadError && (
-    <p role="alert" className="rch-customization__error">
-      {uploadError}
+{/* Upload status */}
+{isUploadingImages && (
+  <p role="status">
+    Uploading reference images...
+  </p>
+)}
+
+{!isUploadingImages &&
+  referenceImages.length > 0 &&
+  referenceImageUrls.length === referenceImages.length && (
+    <p role="status">
+      {referenceImageUrls.length} reference image(s) uploaded.
     </p>
-  )}
+)}
+
+{/* Upload error */}
+{uploadError && (
+  <p role="alert" className="rch-customization__error">
+    {uploadError}
+  </p>
+)}
 </div>
 
       
@@ -300,7 +401,11 @@ const handleImageChange = (event) => {
 
   <AddToCartButton
     className="rch-add-to-cart"
-    disabled={!available}
+    disabled={
+      !available ||
+      isUploadingImages ||
+      referenceImageUrls.length !== referenceImages.length
+    }
     onClick={() => open('cart')}
    
 lines={
@@ -319,9 +424,9 @@ lines={
               key: 'Customization instructions',
               value: customInstructions.trim(),
             },
-            ...referenceImages.map((file, index) => ({
+            ...referenceImageUrls.map((url, index) => ({
               key: `Reference image ${index + 1}`,
-              value: file.name,
+              value: url,
             })),
           ].filter((attribute) => attribute.value),
         },
