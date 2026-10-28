@@ -26,72 +26,29 @@ export const meta = () => [
 ];
 
 export async function loader({context}) {
-
   const recommendedProducts = context.storefront
-
     .query(RECOMMENDED_PRODUCTS_QUERY)
-
     .catch((error) => {
-
       console.error('Unable to load recommended products:', error);
-
       return null;
-
     });
 
-  return {recommendedProducts};
+  const heroProducts = context.storefront
+    .query(HERO_PRODUCTS_QUERY)
+    .catch((error) => {
+      console.error('Unable to load hero products:', error);
+      return null;
+    });
 
+  return {recommendedProducts, heroProducts};
 }
 
 export default function Homepage() {
 
-  const {recommendedProducts} = useLoaderData();
+  const {recommendedProducts, heroProducts} = useLoaderData();
   const heroRef = useRef(null);
   const heroImageRef = useRef(null);
- console.log(recommendedProducts);
-  
-const heroImages = [
-  {
-    src: '/images/resin-hero-1.jpg',
-    alt: 'Handcrafted floral resin art',
-  },
-  {
-    src: '/images/resin-hero-2.jpg',
-    alt: 'Personalised resin keepsake',
-  },
-  {
-    src: '/images/resin-hero-3.jpg',
-    alt: 'Handmade resin gift',
-  },
-  {
-    src: '/images/resin-hero-4.png',
-    alt: 'Botanical resin creation',
-  },
-  {
-    src: '/images/resin-hero-5.jpg',
-    alt: 'Botanical resin creation',
-  },
-   {
-    src: '/images/resin-hero-6.jpg',
-    alt: 'Botanical resin creation',
-  },
-   {
-    src: '/images/resin-hero-7.jpg',
-    alt: 'Botanical resin creation',
-  },
-   {
-    src: '/images/resin-hero-8.png',
-    alt: 'Botanical resin creation',
-  },
-   {
-    src: '/images/resin-hero-9.png',
-    alt: 'Botanical resin creation',
-  },
-   {
-    src: '/images/resin-hero-10.png',
-    alt: 'Botanical resin creation',
-  },
-];
+ console.log("heroProducts",heroProducts);
 
 
   const handleHeroPointerMove = useCallback((event) => {
@@ -164,23 +121,6 @@ useEffect(() => {
   };
 }, []);
 
-const [activeHeroImage, setActiveHeroImage] = useState(0);
-
-const nextHeroImage = useCallback(() => {
-  setActiveHeroImage((current) => (current + 1) % heroImages.length);
-}, []);
-
-const previousHeroImage = useCallback(() => {
-  setActiveHeroImage(
-    (current) => (current - 1 + heroImages.length) % heroImages.length,
-  );
-}, []);
-
-useEffect(() => {
-  const timer = window.setInterval(nextHeroImage, 3000);
-  return () => window.clearInterval(timer);
-}, [nextHeroImage]);
-
 
   return (
 
@@ -220,7 +160,7 @@ useEffect(() => {
   fetchPriority="high"
 /> */}
 
-<div className="rch-hero-carousel">
+{/* <div className="rch-hero-carousel">
   {heroImages.map((image, index) => (
     <img
       key={image.src}
@@ -266,7 +206,19 @@ useEffect(() => {
       />
     ))}
   </div>
-</div>
+</div> */}
+
+{/* upper changes to this */}
+<Suspense fallback={<div className="rch-hero-carousel" />}>
+  <Await resolve={heroProducts}>
+    {(response) => {
+      const products = (response?.products?.nodes ?? [])
+        .filter((product) => product.featuredImage)
+        .sort(() => Math.random() - 0.5);
+      return <ShopifyHeroCarousel products={products} />;
+    }}
+  </Await>
+</Suspense>
 
 
       </section>
@@ -553,59 +505,203 @@ useEffect(() => {
 
 }
 
-const RECOMMENDED_PRODUCTS_QUERY = `#graphql
 
-  query RecommendedProducts($country: CountryCode, $language: LanguageCode)
+function ShopifyHeroCarousel({products}) {
+  const [activeHeroImage, setActiveHeroImage] = useState(0);
 
-    @inContext(country: $country, language: $language) {
+  const nextHeroImage = useCallback(() => {
+    setActiveHeroImage((current) =>
+      products.length ? (current + 1) % products.length : 0,
+    );
+  }, [products.length]);
 
-    products(first: 4, sortKey: UPDATED_AT, reverse: true) {
+  const previousHeroImage = useCallback(() => {
+    setActiveHeroImage((current) =>
+      products.length
+        ? (current - 1 + products.length) % products.length
+        : 0,
+    );
+  }, [products.length]);
 
-      nodes {
+  useEffect(() => {
+    if (products.length < 2) return;
 
-        id
+    const timer = window.setInterval(nextHeroImage, 3000);
+    return () => window.clearInterval(timer);
+  }, [nextHeroImage, products.length]);
 
-        title
-
-        handle
-
-         variants(first: 1) {
-          nodes {
-            id
-            availableForSale
-          }
-        }
-
-        priceRange {
-
-          minVariantPrice {
-
-            amount
-
-            currencyCode
-
-          }
-
-        }
-
-        featuredImage {
-
-          id
-
-          url
-
-          altText
-
-          width
-
-          height
-
-        }
-
-      }
-
-    }
-
+  if (!products.length) {
+    return <div className="rch-hero-carousel" />;
   }
 
+  const product = products[activeHeroImage];
+
+  return (
+    <div className="rch-hero-carousel">
+      <Link
+        to={`/products/${product.handle}`}
+        aria-label={`View ${product.title}`}
+        className="rch-hero-carousel__product-link"
+      >
+        <Image
+          data={product.featuredImage}
+          alt={product.featuredImage.altText || product.title}
+          className="rch-hero-carousel__image is-active"
+          sizes="100vw"
+          loading={activeHeroImage === 0 ? 'eager' : 'lazy'}
+        />
+      </Link>
+
+      {products.length > 1 && (
+        <>
+          <button
+            type="button"
+            className="rch-hero-carousel__arrow rch-hero-carousel__arrow--prev"
+            onClick={previousHeroImage}
+            aria-label="Previous product"
+          >
+            &#8249;
+          </button>
+
+          <button
+            type="button"
+            className="rch-hero-carousel__arrow rch-hero-carousel__arrow--next"
+            onClick={nextHeroImage}
+            aria-label="Next product"
+          >
+            &#8250;
+          </button>
+
+          <div
+            className="rch-hero-carousel__dots"
+            aria-label="Choose a product"
+          >
+            {products.map((item, index) => (
+              <button
+                key={item.id}
+                type="button"
+                className={`rch-hero-carousel__dot ${
+                  activeHeroImage === index ? 'is-active' : ''
+                }`}
+                onClick={() => setActiveHeroImage(index)}
+                aria-label={`Show ${item.title}`}
+                aria-pressed={activeHeroImage === index}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+
+// const RECOMMENDED_PRODUCTS_QUERY = `#graphql
+
+//   query RecommendedProducts($country: CountryCode, $language: LanguageCode)
+
+//     @inContext(country: $country, language: $language) {
+
+//     products(first: 4, sortKey: UPDATED_AT, reverse: true) {
+
+//       nodes {
+
+//         id
+
+//         title
+
+//         handle
+
+//          variants(first: 1) {
+//           nodes {
+//             id
+//             availableForSale
+//           }
+//         }
+
+//         priceRange {
+
+//           minVariantPrice {
+
+//             amount
+
+//             currencyCode
+
+//           }
+
+//         }
+
+//         featuredImage {
+
+//           id
+
+//           url
+
+//           altText
+
+//           width
+
+//           height
+
+//         }
+
+//       }
+
+//     }
+
+//   }
+
+// `;
+
+
+
+
+
+
+
+const RECOMMENDED_PRODUCTS_QUERY = `#graphql
+  query RecommendedProducts($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    products(first: 8, sortKey: UPDATED_AT, reverse: true) {
+      nodes {
+        id
+        title
+        handle
+        featuredImage {
+          id
+          url
+          altText
+          width
+          height
+        }
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+      }
+    }
+  }
+`;
+
+
+const HERO_PRODUCTS_QUERY = `#graphql
+  query HeroProducts($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    products(first: 50, sortKey: CREATED_AT, reverse: false) {
+      nodes {
+        id
+        title
+        handle
+        featuredImage {
+          id
+          url
+          altText
+          width
+          height
+        }
+      }
+    }
+  }
 `;

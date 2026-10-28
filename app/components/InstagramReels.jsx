@@ -232,8 +232,10 @@
 
 
 
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+// import { useEffect, useState } from "react";
+// import { createPortal } from "react-dom";
+import {useEffect, useRef, useState} from 'react';
+import {createPortal} from 'react-dom';
 
 const REEL_LIMIT = 8;
 
@@ -246,9 +248,141 @@ export default function InstagramReels() {
   const [videoLoading, setVideoLoading] = useState(true);
   const [portalReady, setPortalReady] = useState(false);
 
-useEffect(() => {
-  setPortalReady(true);
-}, []);
+  const carouselRef = useRef(null);
+  const dragRef = useRef({
+    active: false,
+    startX: 0,
+    startScrollLeft: 0,
+    moved: false,
+  });
+  const resumeTimerRef = useRef(null);
+  const interactionRef = useRef(false);
+
+    const visibleReels = reels.filter(
+    (reel) => !failedImages.includes(reel.id),
+  );
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
+
+  useEffect(() => {
+  const carousel = carouselRef.current;
+
+  if (!carousel || visibleReels.length < 2) return;
+
+  let frame;
+  let previousTime = 0;
+  let disposed = false;
+
+  const speed = 25; // Pixels per second
+
+  const getLoopWidth = () => carousel.scrollWidth / 2;
+
+  // Start at the duplicated set so the carousel can loop in either direction.
+  const loopWidth = getLoopWidth();
+
+  if (loopWidth > 0) {
+    carousel.scrollLeft = loopWidth;
+  }
+
+  const animate = (time) => {
+    if (disposed) return;
+
+    if (previousTime && !interactionRef.current) {
+      const delta = Math.min(time - previousTime, 50);
+
+      carousel.scrollLeft += (speed * delta) / 1000;
+
+      const width = getLoopWidth();
+
+      if (width > 0) {
+        if (carousel.scrollLeft >= width * 2) {
+          carousel.scrollLeft -= width;
+        } else if (carousel.scrollLeft < 1) {
+          carousel.scrollLeft += width;
+        }
+      }
+    }
+
+    previousTime = time;
+    frame = requestAnimationFrame(animate);
+  };
+
+  frame = requestAnimationFrame(animate);
+
+  return () => {
+    disposed = true;
+    cancelAnimationFrame(frame);
+    clearTimeout(resumeTimerRef.current);
+  };
+}, [visibleReels.length]);
+
+
+function pauseAutoScroll() {
+  interactionRef.current = true;
+  clearTimeout(resumeTimerRef.current);
+}
+
+function resumeAutoScroll() {
+  clearTimeout(resumeTimerRef.current);
+
+  resumeTimerRef.current = setTimeout(() => {
+    interactionRef.current = false;
+  }, 1000);
+}
+
+function handlePointerDown(event) {
+  if (event.pointerType !== 'mouse' || event.button !== 0) return;
+
+  const carousel = carouselRef.current;
+  if (!carousel) return;
+
+  pauseAutoScroll();
+
+  dragRef.current = {
+    active: true,
+    startX: event.clientX,
+    startScrollLeft: carousel.scrollLeft,
+    moved: false,
+  };
+
+  carousel.setPointerCapture(event.pointerId);
+}
+
+function handlePointerMove(event) {
+  const drag = dragRef.current;
+  const carousel = carouselRef.current;
+
+  if (!drag.active || !carousel) return;
+
+  const distance = event.clientX - drag.startX;
+
+  if (Math.abs(distance) > 5) {
+    drag.moved = true;
+  }
+
+  if (drag.moved) {
+    carousel.scrollLeft = drag.startScrollLeft - distance;
+  }
+}
+
+function handlePointerUp() {
+  if (!dragRef.current.active) return;
+
+  dragRef.current.active = false;
+  resumeAutoScroll();
+}
+
+function handleCarouselClick(event) {
+  if (dragRef.current.moved) {
+    event.preventDefault();
+    event.stopPropagation();
+    dragRef.current.moved = false;
+  }
+}
+
+
 
   useEffect(() => {
     const controller = new AbortController();
@@ -281,6 +415,8 @@ useEffect(() => {
     return () => controller.abort();
   }, []);
 
+  
+
   useEffect(() => {
     if (!selectedReel) return;
 
@@ -303,9 +439,7 @@ useEffect(() => {
     setSelectedReel(reel);
   }
 
-  const visibleReels = reels.filter(
-    (reel) => !failedImages.includes(reel.id),
-  );
+
 
   if (loading || !visibleReels.length) return null;
 
@@ -365,8 +499,19 @@ useEffect(() => {
 
       </div>
 
-      <div className="reels-carousel group">
-        <div className="reels-track">
+<div
+  ref={carouselRef}
+  className="reels-carousel group"
+  onTouchStart={pauseAutoScroll}
+  onTouchEnd={resumeAutoScroll}
+  onTouchCancel={resumeAutoScroll}
+  onPointerDown={handlePointerDown}
+  onPointerMove={handlePointerMove}
+  onPointerUp={handlePointerUp}
+  onPointerCancel={handlePointerUp}
+  onClickCapture={handleCarouselClick}
+>        <div className="reels-track">
+
           {carouselReels.map((reel, index) => (
             <button
               key={`${reel.id}-${index}`}
@@ -492,202 +637,200 @@ useEffect(() => {
     document.body,
   )}
 
-      <style>{`
-        .reels-carousel {
-          --reel-width: 160px;
-          --reel-gap: 12px;
-          width: 100%;
-          overflow: hidden;
-        }
+      
+<style>{`
+  .reels-carousel {
+    --reel-width: 160px;
+    --reel-gap: 12px;
 
-        .reels-track {
-          display: flex;
-          width: max-content;
-          gap: var(--reel-gap);
-          animation: reels-scroll 36s linear infinite;
-          will-change: transform;
-        }
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
+    cursor: grab;
+    scroll-behavior: auto;
+    user-select: none;
+  }
 
-        .reels-carousel:hover .reels-track,
-        .reels-carousel:focus-within .reels-track {
-          animation-play-state: paused;
-        }
+  .reels-carousel::-webkit-scrollbar {
+    display: none;
+  }
 
-        .reel-card {
-          position: relative;
-          display: block;
-          flex: 0 0 var(--reel-width);
-          aspect-ratio: 4 / 5;
-          overflow: hidden;
-          padding: 0;
-          border: 0;
-          border-radius: 3px;
-          background: #f5f3f0;
-          cursor: pointer;
-          -webkit-tap-highlight-color: transparent;
-        }
+  .reels-carousel:active {
+    cursor: grabbing;
+  }
 
-        .reel-card img {
-          display: block;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
+  .reels-track {
+    display: flex;
+    width: max-content;
+    gap: var(--reel-gap);
+  }
 
-        .reel-play {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          display: flex;
-          width: 40px;
-          height: 40px;
-          align-items: center;
-          justify-content: center;
-          border: 1px solid rgb(255 255 255 / 85%);
-          border-radius: 50%;
-          background: rgb(0 0 0 / 22%);
-          color: white;
-          transform: translate(-50%, -50%);
-          pointer-events: none;
-        }
+  .reel-card {
+    position: relative;
+    display: block;
+    flex: 0 0 var(--reel-width);
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    border-radius: 3px;
+    background: #f5f3f0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
 
-        @keyframes reels-scroll {
-          from { transform: translateX(0); }
-          to { transform: translateX(calc(-50% - var(--reel-gap) / 2)); }
-        }
+  .reel-card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    -webkit-user-drag: none;
+    user-select: none;
+  }
 
-      .reel-modal {
-  position: fixed;
-  z-index: 2147483647;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: rgb(0 0 0 / 78%);
-  isolation: isolate;
-}
+  .reel-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgb(255 255 255 / 85%);
+    border-radius: 50%;
+    background: rgb(0 0 0 / 22%);
+    color: white;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
 
-.reel-modal-panel {
-  position: relative;
-  z-index: 1;
-  width: min(100%, 400px);
-  max-height: 88dvh;
-  overflow: hidden;
-  border-radius: 10px;
-  background: #111;
-}
-.reel-video-container {
-  position: relative;
-  display: flex;
-  width: 100%;
-  max-height: 70dvh;
-  aspect-ratio: 9 / 16;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background: #000;
-}
+  /* Video modal */
+  .reel-modal {
+    position: fixed;
+    z-index: 2147483647;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgb(0 0 0 / 78%);
+    isolation: isolate;
+  }
 
-.reel-video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  max-height: 70dvh;
-  object-fit: contain;
-}
+  .reel-modal-panel {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 400px);
+    max-height: 88dvh;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #111;
+  }
+
+  .reel-video-container {
+    position: relative;
+    display: flex;
+    width: 100%;
+    max-height: 70dvh;
+    aspect-ratio: 9 / 16;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #000;
+  }
+
+  .reel-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: 70dvh;
+    object-fit: contain;
+  }
+
+  .reel-modal-close {
+    position: absolute;
+    z-index: 2;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgb(255 255 255 / 45%);
+    border-radius: 50%;
+    background: rgb(0 0 0 / 55%);
+    color: white;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .reel-video-status {
+    position: absolute;
+    z-index: 1;
+    color: white;
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  .reel-video-fallback {
+    padding: 40px 24px;
+    color: white;
+    text-align: center;
+  }
+
+  .reel-video-fallback a {
+    display: inline-block;
+    margin-top: 14px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
   .reel-modal-caption {
-  max-height: 18dvh;
-  overflow-y: auto;
-  padding: 12px 16px;
-  color: white;
-  font-size: 13px;
-  line-height: 1.5;
-  white-space: pre-line;
-}
+    max-height: 18dvh;
+    overflow-y: auto;
+    padding: 14px 16px;
+    color: white;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-line;
+  }
 
+  @media (min-width: 480px) {
+    .reels-carousel {
+      --reel-width: 175px;
+      --reel-gap: 14px;
+    }
+  }
 
-        .reel-modal-close {
-          position: absolute;
-          z-index: 2;
-          top: 10px;
-          right: 10px;
-          display: flex;
-          width: 38px;
-          height: 38px;
-          align-items: center;
-          justify-content: center;
-          border: 1px solid rgb(255 255 255 / 45%);
-          border-radius: 50%;
-          background: rgb(0 0 0 / 55%);
-          color: white;
-          font-size: 28px;
-          line-height: 1;
-          cursor: pointer;
-        }
+  @media (min-width: 768px) {
+    .reels-carousel {
+      --reel-width: 195px;
+      --reel-gap: 16px;
+    }
+  }
 
-      
+  @media (min-width: 1280px) {
+    .reels-carousel {
+      --reel-width: 215px;
+      --reel-gap: 18px;
+    }
+  }
 
-      
+  @media (prefers-reduced-motion: reduce) {
+    .reels-carousel {
+      scroll-behavior: auto;
+    }
+  }
+`}</style>
 
-        .reel-video-status {
-          position: absolute;
-          z-index: 1;
-          color: white;
-          font-size: 14px;
-          pointer-events: none;
-        }
-
-        .reel-video-fallback {
-          padding: 40px 24px;
-          color: white;
-          text-align: center;
-        }
-
-        .reel-video-fallback a {
-          display: inline-block;
-          margin-top: 14px;
-          text-decoration: underline;
-          text-underline-offset: 4px;
-        }
-
-        .reel-modal-caption {
-          overflow-y: auto;
-          padding: 14px 16px;
-          color: white;
-          font-size: 13px;
-          line-height: 1.6;
-          white-space: pre-line;
-        }
-
-        @media (min-width: 480px) {
-          .reels-carousel {
-            --reel-width: 175px;
-            --reel-gap: 14px;
-          }
-        }
-
-        @media (min-width: 768px) {
-          .reels-carousel {
-            --reel-width: 195px;
-            --reel-gap: 16px;
-          }
-        }
-
-        @media (min-width: 1280px) {
-          .reels-carousel {
-            --reel-width: 215px;
-            --reel-gap: 18px;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .reels-track {
-            animation: none;
-            will-change: auto;
-          }
-        }
-      `}</style>
     </section>
   );
 }

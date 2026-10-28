@@ -11,7 +11,7 @@ export function ProductItem({product, loading = 'lazy'}) {
   return (
     <article className="rch-product-card">
       <div className="rch-product-card__image">
-        <Link
+        <Link 
           to={`/products/${product.handle}`}
           className="rch-product-card__image-link"
           aria-label={`View ${product.title}`}
@@ -46,9 +46,9 @@ export function ProductItem({product, loading = 'lazy'}) {
         </Link>
 
         {price && (
-          <p className="rch-product-card__price">
+          <div className="rch-product-card__price">
             <Money data={price} />
-          </p>
+          </div>
         )}
 
         <Link

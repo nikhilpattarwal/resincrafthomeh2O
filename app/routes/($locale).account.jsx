@@ -65,6 +65,8 @@ export default function AccountLayout() {
   );
 }
 
+
+
 function AccountMenu() {
   const links = [
     {to: '/account/orders', label: 'Orders'},
@@ -74,30 +76,29 @@ function AccountMenu() {
 
   return (
     <nav className="rch-account-nav" aria-label="Account navigation">
-      {links.map(({to, label}) => (
-        <NavLink
-          key={to}
-          to={to}
-          end
-          prefetch="intent"
-          className={({isActive, isPending}) =>
-            [
-              'rch-account-nav-link',
-              isActive ? 'is-active' : '',
-              isPending ? 'is-pending' : '',
-            ]
-              .filter(Boolean)
-              .join(' ')
-          }
-        >
-          {label}
-        </NavLink>
-      ))}
+      <div className="rch-account-nav-links">
+        {links.map(({to, label}) => (
+          <NavLink
+            key={to}
+            to={to}
+            end
+            prefetch="intent"
+            className={({isActive, isPending}) =>
+              `rch-account-nav-link${isActive ? ' is-active' : ''}${
+                isPending ? ' is-pending' : ''
+              }`
+            }
+          >
+            {label}
+          </NavLink>
+        ))}
+      </div>
 
       <Logout />
     </nav>
   );
 }
+
 
 function Logout() {
   return (

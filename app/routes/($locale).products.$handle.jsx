@@ -13,6 +13,7 @@ import {ProductImage} from '~/components/ProductImage';
 import {ProductForm} from '~/components/ProductForm';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {ProductGallery} from '~/components/ProductGallery';
+import {RecommendedProducts} from '~/components/RecommendedProducts';
 
 
 export const meta = ({data}) => {
@@ -47,14 +48,41 @@ async function loadCriticalData({context, params, request}) {
     throw new Error('Expected product handle to be defined');
   }
 
+  // const [{product}] = await Promise.all([
+  //   storefront.query(PRODUCT_QUERY, {
+  //     variables: {
+  //       handle,
+  //       selectedOptions: getSelectedProductOptions(request),
+  //     },
+  //   }),
+  // ]);
   const [{product}] = await Promise.all([
-    storefront.query(PRODUCT_QUERY, {
-      variables: {
-        handle,
-        selectedOptions: getSelectedProductOptions(request),
-      },
-    }),
-  ]);
+  storefront.query(PRODUCT_QUERY, {
+    variables: {
+      handle,
+      selectedOptions: getSelectedProductOptions(request),
+    },
+  }),
+]);
+
+const recommendationsResult = product?.id
+  ? await storefront
+      .query(PRODUCT_RECOMMENDATIONS_QUERY, {
+        variables: {
+          productId: product.id,
+        },
+      })
+      .catch((error) => {
+        console.error('Product recommendations error:', error);
+        return null;
+      })
+  : null;
+
+const recommendedProducts = (
+  recommendationsResult?.productRecommendations ?? []
+)
+  .filter((item) => item.id !== product?.id)
+  .slice(0, 4);
 
   if (!product?.id) {
     throw new Response(null, {status: 404});
@@ -62,15 +90,14 @@ async function loadCriticalData({context, params, request}) {
 
   redirectIfHandleIsLocalized(request, {handle, data: product});
 
-  return {product};
-}
+return {product, recommendedProducts};}
 
 function loadDeferredData() {
   return {};
 }
 
 export default function Product() {
-  const {product} = useLoaderData();
+  const {product, recommendedProducts = []} = useLoaderData();
 
   const selectedVariant = useOptimisticVariant(
     product.selectedOrFirstAvailableVariant,
@@ -100,7 +127,7 @@ export default function Product() {
   <span aria-hidden="true">/</span>
   <Link to="/collections/all">Shop</Link>
   <span aria-hidden="true">/</span>
-  <Link to="/track-order">Track Order</Link>
+  <Link to="/account/orders">Orders</Link>
   <span aria-hidden="true">/</span>
   <span aria-current="page">{title}</span>
 </nav>
@@ -181,6 +208,7 @@ export default function Product() {
             </div>
           </div>
         </div>
+        <RecommendedProducts products={recommendedProducts} />
       </section>
 
       <section className="rch-product-description">
@@ -665,6 +693,29 @@ const PRODUCT_QUERY = `#graphql
     }
   }
   ${PRODUCT_FRAGMENT}
+`;
+
+const PRODUCT_RECOMMENDATIONS_QUERY = `#graphql
+  query ProductRecommendations($productId: ID!) {
+    productRecommendations(productId: $productId, intent: RELATED) {
+      id
+      title
+      handle
+      featuredImage {
+        id
+        url
+        altText
+        width
+        height
+      }
+      priceRange {
+        minVariantPrice {
+          amount
+          currencyCode
+        }
+      }
+    }
+  }
 `;
 
 /** @typedef {import('./+types/products.$handle').Route} Route */
