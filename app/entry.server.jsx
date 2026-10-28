@@ -24,19 +24,26 @@ const {nonce, header, NonceProvider} = createContentSecurityPolicy({
     checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
     storeDomain: context.env.PUBLIC_STORE_DOMAIN,
   },
+
+  connectSrc: [
+    "'self'",
+    'https://api.cloudinary.com',
+  ],
+
   imgSrc: [
     "'self'",
-    "data:",
-    "https://cdn.shopify.com",
-    "https://*.cdninstagram.com",
-    "https://*.fbcdn.net",
+    'data:',
+    'https://cdn.shopify.com',
+    'https://*.cdninstagram.com',
+    'https://*.fbcdn.net',
+    'https://res.cloudinary.com',
   ],
-  // Videos: Instagram Reel playback
+
   mediaSrc: [
     "'self'",
-    "blob:",
-    "https://*.cdninstagram.com",
-    "https://*.fbcdn.net",
+    'blob:',
+    'https://*.cdninstagram.com',
+    'https://*.fbcdn.net',
   ],
 });
 

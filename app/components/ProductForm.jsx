@@ -10,7 +10,7 @@ import {
 import {AddToCartButton} from './AddToCartButton';
 import {useAside} from './Aside';
 
-export function ProductForm({productOptions, selectedVariant}) {
+export function ProductForm({productOptions, selectedVariant,cloudinary}) {
   const navigate = useNavigate();
   const {open} = useAside();
   const [quantity, setQuantity] = useState(1);
@@ -18,6 +18,7 @@ export function ProductForm({productOptions, selectedVariant}) {
 const [customInstructions, setCustomInstructions] = useState('');
 const [referenceImages, setReferenceImages] = useState([]);
 const [referenceImageUrls, setReferenceImageUrls] = useState([]);
+const [uploadProgress, setUploadProgress] = useState(0);
 
 const [isUploadingImages, setIsUploadingImages] = useState(false);
   const available = Boolean(selectedVariant?.availableForSale);
@@ -56,6 +57,94 @@ const imageInputRef = useRef(null);
 //   setReferenceImages(files);
 // };
 
+// const handleImageChange = async (event) => {
+//   const files = Array.from(event.target.files || []);
+//   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+//   const maxFileSize = 5 * 1024 * 1024;
+//   const maxFiles = 5;
+
+//   setUploadError('');
+//   setReferenceImages([]);
+//   setReferenceImageUrls([]);
+
+//   if (files.length > maxFiles) {
+//     setUploadError('Please select no more than 5 images.');
+//     event.target.value = '';
+//     return;
+//   }
+
+//   const invalidFile = files.find(
+//     (file) =>
+//       !allowedTypes.includes(file.type) ||
+//       file.size > maxFileSize,
+//   );
+
+//   if (invalidFile) {
+//     setUploadError(
+//       'Use JPG, PNG, or WebP images, up to 5 MB each.',
+//     );
+//     event.target.value = '';
+//     return;
+//   }
+
+//   if (files.length === 0) return;
+
+//   setReferenceImages(files);
+//   setIsUploadingImages(true);
+
+//   try {
+//     const cloudName = cloudinary?.cloudName;
+// const uploadPreset = cloudinary?.uploadPreset;
+//       console.log('Cloudinary config:', {
+//   cloudNamePresent: Boolean(cloudName),
+//   uploadPresetPresent: Boolean(uploadPreset),
+// });
+
+//     if (!cloudName || !uploadPreset) {
+//       throw new Error('Cloudinary configuration is missing.');
+//     }
+
+//     const urls = await Promise.all(
+//       files.map(async (file) => {
+//         const formData = new FormData();
+//         formData.append('file', file);
+//         formData.append('upload_preset', uploadPreset);
+
+//         const response = await fetch(
+//           `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+//           {
+//             method: 'POST',
+//             body: formData,
+//           },
+//         );
+
+//         const result = await response.json();
+
+//         if (!response.ok || !result.secure_url) {
+//           throw new Error(
+//             result.error?.message || `Failed to upload ${file.name}`,
+//           );
+//         }
+
+//         return result.secure_url;
+//       }),
+//     );
+
+//     setReferenceImageUrls(urls);
+//   } catch (error) {
+//     console.error('Reference image upload failed:', error);
+//     setReferenceImages([]);
+//     setReferenceImageUrls([]);
+//     setUploadError(
+//       error.message || 'Image upload failed. Please try again.',
+//     );
+//   } finally {
+//     setIsUploadingImages(false);
+//   }
+// };
+
+
+
 const handleImageChange = async (event) => {
   const files = Array.from(event.target.files || []);
   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -65,6 +154,7 @@ const handleImageChange = async (event) => {
   setUploadError('');
   setReferenceImages([]);
   setReferenceImageUrls([]);
+  setUploadProgress(0);
 
   if (files.length > maxFiles) {
     setUploadError('Please select no more than 5 images.');
@@ -86,52 +176,105 @@ const handleImageChange = async (event) => {
     return;
   }
 
-  if (files.length === 0) return;
+  if (!files.length) return;
 
   setReferenceImages(files);
   setIsUploadingImages(true);
 
   try {
-    const cloudName =
-      import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset =
-      import.meta.env.PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+    const cloudName = cloudinary?.cloudName;
+    const uploadPreset = cloudinary?.uploadPreset;
 
     if (!cloudName || !uploadPreset) {
       throw new Error('Cloudinary configuration is missing.');
     }
 
-    const urls = await Promise.all(
-      files.map(async (file) => {
+    const progressByFile = files.map(() => 0);
+    const urls = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      const url = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+
+        xhr.open(
+          'POST',
+          `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        );
+
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            progressByFile[i] =
+              (event.loaded / event.total) * 100;
+
+            const totalProgress =
+              progressByFile.reduce((sum, value) => sum + value, 0) /
+              files.length;
+
+            setUploadProgress(Math.round(totalProgress));
+          }
+        };
+
+        xhr.onload = () => {
+          let result;
+
+          try {
+            result = JSON.parse(xhr.responseText);
+          } catch {
+            reject(new Error(`Invalid response for ${file.name}`));
+            return;
+          }
+
+          if (
+            xhr.status >= 200 &&
+            xhr.status < 300 &&
+            result.secure_url
+          ) {
+            resolve(result.secure_url);
+          } else {
+            reject(
+              new Error(
+                result.error?.message ||
+                  `Failed to upload ${file.name}`,
+              ),
+            );
+          }
+        };
+
+        xhr.onerror = () => {
+          reject(new Error(`Network error uploading ${file.name}`));
+        };
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('upload_preset', uploadPreset);
-
-        const response = await fetch(
-          `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-          {
-            method: 'POST',
-            body: formData,
-          },
+        formData.append(
+          'folder',
+          'resin-craft-home/customer-references',
         );
 
-        const result = await response.json();
+        xhr.send(formData);
+      });
 
-        if (!response.ok || !result.secure_url) {
-          throw new Error(
-            result.error?.message || `Failed to upload ${file.name}`,
-          );
-        }
+      urls.push(url);
+      progressByFile[i] = 100;
 
-        return result.secure_url;
-      }),
-    );
+      setUploadProgress(
+        Math.round(
+          progressByFile.reduce((sum, value) => sum + value, 0) /
+            files.length,
+        ),
+      );
+    }
 
     setReferenceImageUrls(urls);
+    setUploadProgress(100);
   } catch (error) {
     console.error('Reference image upload failed:', error);
     setReferenceImages([]);
     setReferenceImageUrls([]);
+    setUploadProgress(0);
     setUploadError(
       error.message || 'Image upload failed. Please try again.',
     );
@@ -139,6 +282,7 @@ const handleImageChange = async (event) => {
     setIsUploadingImages(false);
   }
 };
+
 
   return (
     <div className="rch-product-form">
@@ -281,6 +425,31 @@ const handleImageChange = async (event) => {
     onChange={handleImageChange}
   />
 
+  
+{isUploadingImages && (
+  <div className="rch-upload-progress" role="status" aria-live="polite">
+    <div className="rch-upload-progress__header">
+      <span>Uploading reference images...</span>
+      <strong>{uploadProgress}%</strong>
+    </div>
+
+    <div
+      className="rch-upload-progress__track"
+      role="progressbar"
+      aria-label="Reference image upload progress"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={uploadProgress}
+    >
+      <div
+        className="rch-upload-progress__fill"
+        style={{ width: `${uploadProgress}%` }}
+      />
+    </div>
+  </div>
+)}
+
+
  {referenceImages.length > 0 && (
   <ul>
     {referenceImages.map((file) => (
@@ -291,12 +460,6 @@ const handleImageChange = async (event) => {
   </ul>
 )}
 
-{/* Upload status */}
-{isUploadingImages && (
-  <p role="status">
-    Uploading reference images...
-  </p>
-)}
 
 {!isUploadingImages &&
   referenceImages.length > 0 &&

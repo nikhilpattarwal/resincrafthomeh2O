@@ -90,14 +90,27 @@ const recommendedProducts = (
 
   redirectIfHandleIsLocalized(request, {handle, data: product});
 
-return {product, recommendedProducts};}
+return {
+  product,
+  recommendedProducts,
+  cloudinary: {
+    cloudName: context.env.PUBLIC_CLOUDINARY_CLOUD_NAME,
+    uploadPreset: context.env.PUBLIC_CLOUDINARY_UPLOAD_PRESET,
+  },
+};
+
+}
 
 function loadDeferredData() {
   return {};
 }
 
 export default function Product() {
-  const {product, recommendedProducts = []} = useLoaderData();
+  const {
+  product,
+  recommendedProducts = [],
+  cloudinary,
+} = useLoaderData();
 
   const selectedVariant = useOptimisticVariant(
     product.selectedOrFirstAvailableVariant,
@@ -181,6 +194,7 @@ export default function Product() {
             <ProductForm
               productOptions={productOptions}
               selectedVariant={selectedVariant}
+              cloudinary={cloudinary}
             />
           </div>
 
