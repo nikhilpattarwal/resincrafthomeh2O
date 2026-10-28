@@ -395,7 +395,7 @@ export function ResinProcess() {
           aria-hidden={isPlaying && !videoFailed}
         >
           <Image
-            src="/resin-story-fallback.webp"
+            src="/images/resin-story-fallback.webp"
             alt=""
             className="resin-process__fallback-image"
             loading="eager"
@@ -422,7 +422,7 @@ export function ResinProcess() {
               isPlaying && !videoFailed ? 'is-playing' : ''
             } ${videoFailed ? 'is-hidden' : ''}`}
             src={videos[currentVideo].src}
-            poster="/resin-story-fallback.webp"
+            poster="/images/resin-story-fallback.webp"
             muted
             autoPlay
             playsInline

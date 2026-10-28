@@ -33,12 +33,29 @@ export async function loader({context}) {
       return null;
     });
 
-  const heroProducts = context.storefront
-    .query(HERO_PRODUCTS_QUERY)
-    .catch((error) => {
-      console.error('Unable to load hero products:', error);
-      return null;
-    });
+ const heroProducts = context.storefront
+  .query(HERO_PRODUCTS_QUERY)
+  .then((response) => {
+    const products = [...(response?.products?.nodes ?? [])];
+
+    // Shuffle once on the server
+    for (let i = products.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [products[i], products[j]] = [products[j], products[i]];
+    }
+
+    return {
+      ...response,
+      products: {
+        ...response.products,
+        nodes: products,
+      },
+    };
+  })
+  .catch((error) => {
+    console.error('Unable to load hero products:', error);
+    return null;
+  });
 
   return {recommendedProducts, heroProducts};
 }
@@ -214,7 +231,6 @@ useEffect(() => {
     {(response) => {
       const products = (response?.products?.nodes ?? [])
         .filter((product) => product.featuredImage)
-        .sort(() => Math.random() - 0.5);
       return <ShopifyHeroCarousel products={products} />;
     }}
   </Await>
@@ -473,7 +489,7 @@ useEffect(() => {
 
         <Link to="/pages/contact-us">Contact us</Link>
 <Link to="/pages/shipping">Shipping</Link>
-<Link to="/track-order">Track my order</Link>
+<Link to="/account/orders">Orders</Link>
 
 <Link to="/pages/returns-refund">Returns & refunds</Link>
 
