@@ -17,6 +17,8 @@ export function ProductForm({productOptions, selectedVariant}) {
      const [customName, setCustomName] = useState('');
 const [customInstructions, setCustomInstructions] = useState('');
 const [referenceImages, setReferenceImages] = useState([]);
+const [referenceImageUrls, setReferenceImageUrls] = useState([]);
+
 const [isUploadingImages, setIsUploadingImages] = useState(false);
   const available = Boolean(selectedVariant?.availableForSale);
 
