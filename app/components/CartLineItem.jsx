@@ -3,7 +3,10 @@ import {useVariantUrl} from '~/lib/variants';
 import {Link} from 'react-router';
 import {ProductPrice} from './ProductPrice';
 import {useAside} from './Aside';
-import {useState} from 'react';
+import { useEffect, useRef, useState } from 'react';
+import {useToast} from '~/components/Toast';
+
+
 
 
 /**
@@ -138,6 +141,8 @@ function CartLineQuantity({line}) {
   const {id: lineId, quantity, isOptimistic} = line;
   const prevQuantity = Number(Math.max(0, quantity - 1).toFixed(0));
   const nextQuantity = Number((quantity + 1).toFixed(0));
+  const {showToast} = useToast();
+  
 
   return (
     <div className="cart-line-quantity">
@@ -181,15 +186,65 @@ function CartLineQuantity({line}) {
 function CartLineRemoveButton({lineIds, disabled}) {
   return (
     <CartForm
-      fetcherKey={getUpdateKey(lineIds)}
+      fetcherKey={getRemoveKey(lineIds)}
       route="/cart"
       action={CartForm.ACTIONS.LinesRemove}
       inputs={{lineIds}}
     >
-      <button disabled={disabled} type="submit">
+      <button disabled={disabled}  className="rch-cart-remove-button" type="submit">
         Remove
       </button>
     </CartForm>
+  );
+}
+
+
+function CartLineRemoveSubmit({fetcher, disabled}) {
+  const {showToast, removeToast} = useToast();
+  const loadingToastId = useRef(null);
+  const wasSubmitting = useRef(false);
+
+  useEffect(() => {
+    if (fetcher.state !== 'idle') {
+      wasSubmitting.current = true;
+      return;
+    }
+
+    if (!wasSubmitting.current) return;
+
+    wasSubmitting.current = false;
+
+    if (loadingToastId.current) {
+      removeToast(loadingToastId.current);
+      loadingToastId.current = null;
+    }
+
+    const result = fetcher.data;
+    const hasErrors = !result?.cart || Boolean(result.errors?.length);
+
+    if (hasErrors) {
+      showToast('Unable to remove item. Please try again.', 'error');
+    } else {
+      showToast('Item removed from your bag.', 'success');
+    }
+  }, [fetcher.state, fetcher.data, showToast, removeToast]);
+
+  return (
+    <button
+      disabled={disabled || fetcher.state !== 'idle'}
+      type="submit"
+      onClick={() => {
+        if (!loadingToastId.current) {
+          loadingToastId.current = showToast(
+            'Removing item from your bag...',
+            'loading',
+            0,
+          );
+        }
+      }}
+    >
+      Remove
+    </button>
   );
 }
 
@@ -223,6 +278,9 @@ function CartLineUpdateButton({children, lines}) {
  */
 function getUpdateKey(lineIds) {
   return [CartForm.ACTIONS.LinesUpdate, ...lineIds].join('-');
+}
+function getRemoveKey(lineIds) {
+  return [CartForm.ACTIONS.LinesRemove, ...lineIds].join('-');
 }
 
 /** @typedef {OptimisticCartLine<CartApiQueryFragment>} CartLine */

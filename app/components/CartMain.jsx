@@ -1,4 +1,6 @@
 import {useOptimisticCart} from '@shopify/hydrogen';
+import {useEffect, useRef} from 'react';
+import {useToast} from '~/components/Toast';
 import {Link} from 'react-router';
 import {useAside} from '~/components/Aside';
 import {CartLineItem} from '~/components/CartLineItem';
@@ -35,6 +37,47 @@ export function CartMain({layout, cart: originalCart}) {
   // The useOptimisticCart hook applies pending actions to the cart
   // so the user immediately sees feedback when they modify the cart.
   const cart = useOptimisticCart(originalCart);
+//   const {showToast} = useToast();
+
+// const previousLineIds = useRef(null);
+
+// useEffect(() => {
+//   const currentLineIds = new Set(
+//     cart?.lines?.nodes?.map((line) => line.id) ?? [],
+//   );
+
+//   if (previousLineIds.current !== null) {
+//     const removedItems = [...previousLineIds.current].filter(
+//       (id) => !currentLineIds.has(id),
+//     );
+
+//     if (removedItems.length > 0) {
+//       showToast('Item removed from your bag.', 'success');
+//     }
+//   }
+
+//   previousLineIds.current = currentLineIds;
+// }, [cart?.lines?.nodes, showToast]);
+const {showToast} = useToast();
+const previousLineIds = useRef(null);
+
+useEffect(() => {
+  const currentLineIds = new Set(
+    originalCart?.lines?.nodes?.map((line) => line.id) ?? [],
+  );
+
+  if (previousLineIds.current !== null) {
+    const removedItems = [...previousLineIds.current].filter(
+      (id) => !currentLineIds.has(id),
+    );
+
+    if (removedItems.length > 0) {
+      showToast('Item removed from your bag.', 'success');
+    }
+  }
+
+  previousLineIds.current = currentLineIds;
+}, [originalCart?.lines?.nodes, showToast]);
 
   const linesCount = Boolean(cart?.lines?.nodes?.length || 0);
   const withDiscount =

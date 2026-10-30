@@ -564,7 +564,7 @@ const handleImageChange = async (event) => {
     </button>
   </div>
 
-  <AddToCartButton
+  {/* <AddToCartButton
     className="rch-add-to-cart"
     disabled={
       !available ||
@@ -636,7 +636,71 @@ lines={
         ↗
       </span>
     )}
-  </AddToCartButton>
+  </AddToCartButton> */}
+
+  
+<AddToCartButton
+  className="rch-add-to-cart"
+  disabled={
+    !available ||
+    isUploadingImages ||
+    referenceImageUrls.length !== referenceImages.length
+  }
+    onClick={() => open('cart')}
+  lines={
+    selectedVariant
+      ? [
+          {
+            merchandiseId: selectedVariant.id,
+            quantity,
+            selectedVariant,
+            attributes: [
+              {
+                key: 'Personalized name or text',
+                value: customName.trim(),
+              },
+              {
+                key: 'Customization instructions',
+                value: customInstructions.trim(),
+              },
+              ...referenceImageUrls.map((url, index) => ({
+                key: `Reference image ${index + 1}`,
+                value: url,
+              })),
+            ].filter((attribute) => attribute.value),
+          },
+        ]
+      : []
+  }
+  style={{
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '9px',
+    width: '100%',
+    minWidth: 0,
+    minHeight: '52px',
+    padding: '10px 12px',
+    boxSizing: 'border-box',
+    border: `1px solid ${available ? '#355c45' : '#d6d3d1'}`,
+    borderRadius: '3px',
+    background: available ? '#355c45' : '#e7e5e4',
+    color: available ? '#ffffff' : '#78716c',
+    fontFamily: 'inherit',
+    fontSize: '12px',
+    fontWeight: 600,
+    letterSpacing: '0.03em',
+    lineHeight: 1.3,
+    cursor: available ? 'pointer' : 'not-allowed',
+    opacity: 1,
+  }}
+>
+  <LuShoppingCart size={17} style={{flexShrink: 0}} aria-hidden="true" />
+  <span>{available ? 'Add to bag' : 'Sold out'}</span>
+  {available && <span aria-hidden="true" style={{marginLeft: 'auto'}}>↗</span>}
+</AddToCartButton>
+
 </div>
 
 

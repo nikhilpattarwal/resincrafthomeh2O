@@ -15,6 +15,7 @@ import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import tailwindCss from './styles/tailwind.css?url';
 import {PageLayout} from './components/PageLayout';
+import {ToastProvider} from '~/components/Toast';
 import '~/styles/rch-account-responsive.css';
 
 /**
@@ -178,26 +179,55 @@ export function Layout({children}) {
   );
 }
 
+// export default function App() {
+//   /** @type {RootLoader} */
+//   const data = useRouteLoaderData('root');
+
+//   if (!data) {
+//     return <Outlet />;
+//   }
+
+//   return (
+//     <Analytics.Provider
+//       cart={data.cart}
+//       shop={data.shop}
+//       consent={data.consent}
+//     >
+//       <PageLayout {...data}>
+//         <Outlet />
+//       </PageLayout>
+//     </Analytics.Provider>
+//   );
+// }
+
+
 export default function App() {
   /** @type {RootLoader} */
   const data = useRouteLoaderData('root');
 
   if (!data) {
-    return <Outlet />;
+    return (
+      <ToastProvider>
+        <Outlet />
+      </ToastProvider>
+    );
   }
 
   return (
-    <Analytics.Provider
-      cart={data.cart}
-      shop={data.shop}
-      consent={data.consent}
-    >
-      <PageLayout {...data}>
-        <Outlet />
-      </PageLayout>
-    </Analytics.Provider>
+    <ToastProvider>
+      <Analytics.Provider
+        cart={data.cart}
+        shop={data.shop}
+        consent={data.consent}
+      >
+        <PageLayout {...data}>
+          <Outlet />
+        </PageLayout>
+      </Analytics.Provider>
+    </ToastProvider>
   );
 }
+
 
 export function ErrorBoundary() {
   const error = useRouteError();

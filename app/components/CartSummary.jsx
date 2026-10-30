@@ -1,6 +1,13 @@
 import {CartForm, Money} from '@shopify/hydrogen';
 import {useEffect, useId, useRef, useState} from 'react';
 import {useFetcher} from 'react-router';
+import {useToast} from '~/components/Toast';
+import {
+  LuShoppingCart,
+  LuPlus,
+  LuMinus,
+  LuShieldCheck,
+} from 'react-icons/lu';
 
 /**
  * @param {CartSummaryProps}
@@ -45,18 +52,29 @@ export function CartSummary({cart, layout}) {
 /**
  * @param {{checkoutUrl?: string}}
  */
+
 function CartCheckoutActions({checkoutUrl}) {
   if (!checkoutUrl) return null;
 
   return (
-    <div>
-      <a href={checkoutUrl} target="_self">
-        <p style={{color:"green", fontWeight:"bold"}}>Continue to Checkout &rarr;</p>
+    <div className="rch-checkout-actions">
+      <p className="rch-checkout-secure">
+        <LuShieldCheck />
+        Secure checkout
+      </p>
+
+      <a href={checkoutUrl} className="rch-checkout-button">
+        Continue to Checkout
+        <span aria-hidden="true">→</span>
       </a>
-      <br />
+
+      <p className="rch-checkout-note">
+        Shipping and taxes calculated at checkout.
+      </p>
     </div>
   );
 }
+
 
 /**
  * @param {{
@@ -65,59 +83,216 @@ function CartCheckoutActions({checkoutUrl}) {
  *   discountCodeInputId: string;
  * }}
  */
+// function CartDiscounts({
+//   discountCodes,
+//   discountsHeadingId,
+//   discountCodeInputId,
+// }) {
+//   const codes =
+//     discountCodes
+//       ?.filter((discount) => discount.applicable)
+//       ?.map(({code}) => code) || [];
+
+//   return (
+//     <section aria-label="Discounts">
+//       {/* Have existing discount, display it with a remove option */}
+//       <dl hidden={!codes.length}>
+//         <div>
+//           <dt id={discountsHeadingId}>Discounts</dt>
+//           <UpdateDiscountForm>
+//             <div
+//               className="cart-discount"
+//               role="group"
+//               aria-labelledby={discountsHeadingId}
+//             >
+//               <code>{codes?.join(', ')}</code>
+//               &nbsp;
+//               <button type="submit" aria-label="Remove discount">
+//                 Remove
+//               </button>
+//             </div>
+//           </UpdateDiscountForm>
+//         </div>
+//       </dl>
+
+//       {/* Show an input to apply a discount */}
+//       <UpdateDiscountForm discountCodes={codes}>
+//         <div>
+//           <label htmlFor={discountCodeInputId} className="sr-only">
+//             Discount code
+//           </label>
+//           <input
+//             id={discountCodeInputId}
+//             type="text"
+//             name="discountCode"
+//             placeholder="Discount code"
+//           />
+//           &nbsp;
+//           <button type="submit" aria-label="Apply discount code">
+//             Apply
+//           </button>
+//         </div>
+//       </UpdateDiscountForm>
+//     </section>
+//   );
+// }
+
+
+
 function CartDiscounts({
   discountCodes,
   discountsHeadingId,
   discountCodeInputId,
 }) {
-  const codes =
-    discountCodes
-      ?.filter((discount) => discount.applicable)
-      ?.map(({code}) => code) || [];
+  const fetcher = useFetcher({key: 'discount-code-update'});
+  const removeFetcher = useFetcher({key: 'discount-code-remove'});
+  const [discountCode, setDiscountCode] = useState('');
+  const [submittedCode, setSubmittedCode] = useState('');
+  const [status, setStatus] = useState('');
+  const wasSubmitting = useRef(false);
+  const {showToast} = useToast();
+
+  const codes = discountCodes || [];
+  const appliedCodes = codes.filter((discount) => discount.applicable);
+  const wasRemovingDiscount = useRef(false);
+
+
+useEffect(() => {
+  if (fetcher.state !== 'idle') {
+    wasSubmitting.current = true;
+    return;
+  }
+
+  if (!wasSubmitting.current) return;
+
+  wasSubmitting.current = false;
+  if (wasRemovingDiscount.current) {
+  wasRemovingDiscount.current = false;
+
+  if (codes.every((discount) => !discount.applicable)) {
+    setStatus('');
+    showToast('Discount coupon removed successfully!', 'success');
+  } else {
+    showToast('Unable to remove discount coupon.', 'error');
+  }
+
+  return;
+}
+
+  const result = codes.find(
+    (discount) =>
+      discount.code.toLowerCase() === submittedCode.toLowerCase(),
+  );
+
+  if (result?.applicable) {
+    setStatus('success');
+    setDiscountCode('');
+    showToast('Coupon applied successfully!', 'success');
+  } else if (result) {
+    setStatus('invalid');
+    showToast('This coupon is not valid for your cart.', 'error');
+  } else {
+    setStatus('error');
+    showToast('Unable to verify coupon. Please try again.', 'error');
+  }
+}, [fetcher.state, discountCodes, submittedCode, showToast]);
+
+
+  const isApplying = fetcher.state !== 'idle';
 
   return (
-    <section aria-label="Discounts">
-      {/* Have existing discount, display it with a remove option */}
-      <dl hidden={!codes.length}>
-        <div>
-          <dt id={discountsHeadingId}>Discounts</dt>
-          <UpdateDiscountForm>
-            <div
-              className="cart-discount"
-              role="group"
-              aria-labelledby={discountsHeadingId}
-            >
-              <code>{codes?.join(', ')}</code>
-              &nbsp;
-              <button type="submit" aria-label="Remove discount">
-                Remove
-              </button>
-            </div>
-          </UpdateDiscountForm>
-        </div>
-      </dl>
+    <section className="rch-cart-code-section" aria-label="Discounts">
+      <h4 id={discountsHeadingId}>Discount code</h4>
 
-      {/* Show an input to apply a discount */}
-      <UpdateDiscountForm discountCodes={codes}>
-        <div>
+      {appliedCodes.length > 0 && (
+        <div className="rch-applied-code">
+          <div>
+            <strong>{appliedCodes.map(({code}) => code).join(', ')}</strong>
+            <span>Discount applied</span>
+          </div>
+
+         <UpdateDiscountForm
+              discountCodes={[]}
+              fetcherKey="discount-code-remove"
+            >
+              <button
+                type="submit"
+                className="rch-code-remove"
+                disabled={removeFetcher.state !== 'idle'}
+                onClick={() => {
+                  wasRemovingDiscount.current = true;
+                }}
+              >
+                {removeFetcher.state !== 'idle' ? 'Removing...' : 'Remove'}
+              </button>
+            </UpdateDiscountForm>
+        </div>
+      )}
+
+      <UpdateDiscountForm
+        discountCodes={[...appliedCodes.map(({code}) => code), discountCode.trim()]
+          .filter(Boolean)}
+        fetcherKey="discount-code-update"
+      >
+        <div className="rch-code-input-row">
           <label htmlFor={discountCodeInputId} className="sr-only">
             Discount code
           </label>
+
           <input
             id={discountCodeInputId}
             type="text"
             name="discountCode"
-            placeholder="Discount code"
+            placeholder="Enter discount code"
+            value={discountCode}
+            onChange={(event) => {
+              setDiscountCode(event.target.value.toUpperCase());
+              setStatus('');
+            }}
+            autoComplete="off"
           />
-          &nbsp;
-          <button type="submit" aria-label="Apply discount code">
-            Apply
+
+          <button
+            type="submit"
+            disabled={!discountCode.trim() || isApplying}
+            onClick={() => {
+              setSubmittedCode(discountCode.trim());
+              setStatus('applying');
+            }}
+          >
+            {isApplying ? 'Applying...' : 'Apply'}
           </button>
         </div>
       </UpdateDiscountForm>
+
+      {status === 'applying' && (
+        <p className="rch-code-status is-loading" role="status">
+          Verifying your discount code...
+        </p>
+      )}
+
+      {status === 'success' && (
+        <p className="rch-code-status is-success" role="status">
+          Discount code applied successfully.
+        </p>
+      )}
+
+      {status === 'invalid' && (
+        <p className="rch-code-status is-error" role="alert">
+          This discount code is not valid for your cart.
+        </p>
+      )}
+
+      {status === 'error' && (
+        <p className="rch-code-status is-error" role="alert">
+          We couldn't verify this code. Please try again.
+        </p>
+      )}
     </section>
   );
 }
+
+
 
 /**
  * @param {{
@@ -125,9 +300,11 @@ function CartDiscounts({
  *   children: React.ReactNode;
  * }}
  */
-function UpdateDiscountForm({discountCodes, children}) {
+
+function UpdateDiscountForm({discountCodes, children, fetcherKey}) {
   return (
     <CartForm
+      fetcherKey={fetcherKey}
       route="/cart"
       action={CartForm.ACTIONS.DiscountCodesUpdate}
       inputs={{
@@ -138,6 +315,7 @@ function UpdateDiscountForm({discountCodes, children}) {
     </CartForm>
   );
 }
+
 
 /**
  * @param {{
@@ -152,6 +330,12 @@ function CartGiftCard({giftCardCodes, giftCardHeadingId, giftCardInputId}) {
   const previousCardIdsRef = useRef([]);
   const giftCardAddFetcher = useFetcher({key: 'gift-card-add'});
   const [removedCardIndex, setRemovedCardIndex] = useState(null);
+  const isApplyingGiftCard = giftCardAddFetcher.state !== 'idle';
+
+  const {showToast} = useToast();
+  const previousGiftCardIds = useRef(
+    giftCardCodes?.map((card) => card.id) || [],
+  );
 
   useEffect(() => {
     if (giftCardAddFetcher.data) {
@@ -160,6 +344,22 @@ function CartGiftCard({giftCardCodes, giftCardHeadingId, giftCardInputId}) {
       }
     }
   }, [giftCardAddFetcher.data]);
+
+
+  useEffect(() => {
+  const currentIds = giftCardCodes?.map((card) => card.id) || [];
+  const previousIds = previousGiftCardIds.current;
+
+  const newlyApplied = currentIds.filter(
+    (id) => !previousIds.includes(id),
+  );
+
+  if (newlyApplied.length > 0) {
+    showToast('Gift card applied successfully!', 'success');
+  }
+
+  previousGiftCardIds.current = currentIds;
+}, [giftCardCodes, showToast]);
 
   useEffect(() => {
     const currentCardIds = giftCardCodes?.map((card) => card.id) || [];
@@ -190,6 +390,8 @@ function CartGiftCard({giftCardCodes, giftCardHeadingId, giftCardInputId}) {
     const index = previousCardIdsRef.current.indexOf(cardId);
     if (index !== -1) {
       setRemovedCardIndex(index);
+      showToast('Removing gift card...', 'info');
+
     }
   };
 
@@ -236,13 +438,19 @@ function CartGiftCard({giftCardCodes, giftCardHeadingId, giftCardInputId}) {
           &nbsp;
           <button
             type="submit"
-            disabled={giftCardAddFetcher.state !== 'idle'}
+            className="rch-gift-card-apply"
+            disabled={isApplyingGiftCard}
             aria-label="Apply gift card code"
           >
-            Apply
+            {isApplyingGiftCard ? 'Applying...' : 'Apply'}
           </button>
         </div>
       </AddGiftCardForm>
+      {isApplyingGiftCard && (
+        <p className="rch-code-status is-loading" role="status">
+          Verifying your gift card...
+        </p>
+      )}
     </section>
   );
 }

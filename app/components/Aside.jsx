@@ -52,7 +52,7 @@ export function Aside({children, heading, type}) {
             &times;
           </button>
         </header>
-        <main>{children}</main>
+        <main className="aside-aro-layout">{children}</main>
       </aside>
     </div>
   );
