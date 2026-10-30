@@ -97,22 +97,62 @@ const handleHeroPointerLeave = useCallback(() => {
   heroImageRef.current.style.setProperty('--rch-pointer-y', '0px');
 }, []);
 
+// useEffect(() => {
+//   const root = document.querySelector('.rch-home');
+//   if (!root) return;
+
+//   const elements = root.querySelectorAll('[data-rch-reveal]');
+
+//   const showAll = () => {
+//     root.classList.remove('rch-motion-ready');
+//     elements.forEach((element) => element.classList.add('is-visible'));
+//   };
+
+//   if (
+//     window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+//     !('IntersectionObserver' in window)
+//   ) {
+//     showAll();
+//     return;
+//   }
+
+//   root.classList.add('rch-motion-ready');
+
+//   const observer = new IntersectionObserver(
+//     (entries) => {
+//       entries.forEach((entry) => {
+//         if (entry.isIntersecting) {
+//           entry.target.classList.add('is-visible');
+//           observer.unobserve(entry.target);
+//         }
+//       });
+//     },
+//     { threshold: 0.12, rootMargin: '0px 0px -35px 0px' },
+//   );
+
+//   elements.forEach((element) => observer.observe(element));
+
+//   return () => {
+//     observer.disconnect();
+//     root.classList.remove('rch-motion-ready');
+//   };
+// }, []);
+
 useEffect(() => {
   const root = document.querySelector('.rch-home');
   if (!root) return;
 
-  const elements = root.querySelectorAll('[data-rch-reveal]');
-
-  const showAll = () => {
-    root.classList.remove('rch-motion-ready');
-    elements.forEach((element) => element.classList.add('is-visible'));
-  };
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)',
+  ).matches;
 
   if (
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+    prefersReducedMotion ||
     !('IntersectionObserver' in window)
   ) {
-    showAll();
+    root.querySelectorAll('[data-rch-reveal]').forEach((element) => {
+      element.classList.add('is-visible');
+    });
     return;
   }
 
@@ -127,13 +167,43 @@ useEffect(() => {
         }
       });
     },
-    { threshold: 0.12, rootMargin: '0px 0px -35px 0px' },
+    {
+      threshold: 0.12,
+      rootMargin: '0px 0px -35px 0px',
+    },
   );
 
-  elements.forEach((element) => observer.observe(element));
+  const observeElements = (container) => {
+    if (container.matches?.('[data-rch-reveal]')) {
+      observer.observe(container);
+    }
+
+    container.querySelectorAll?.('[data-rch-reveal]').forEach((element) => {
+      observer.observe(element);
+    });
+  };
+
+  observeElements(root);
+
+  // Detect content rendered later by React Await.
+  const mutationObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          observeElements(node);
+        }
+      });
+    });
+  });
+
+  mutationObserver.observe(root, {
+    childList: true,
+    subtree: true,
+  });
 
   return () => {
     observer.disconnect();
+    mutationObserver.disconnect();
     root.classList.remove('rch-motion-ready');
   };
 }, []);
@@ -347,8 +417,7 @@ useEffect(() => {
 
                 <>
 
-                  <div className="rch-product-grid" data-rch-reveal>
-
+                  <div className="rch-product-grid">
                     {products.map((product, index) => (
 
                       <ProductItem key={product.id} product={product} loading={index < 2 ? 'eager' : 'lazy'} />

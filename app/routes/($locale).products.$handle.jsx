@@ -256,7 +256,7 @@ export default function Product() {
         </a>
       </section>
 
-      <style>{`
+      {/* <style>{`
         .rch-product-page {
           --rch-ink: #332b26;
           --rch-muted: #796b60;
@@ -583,7 +583,7 @@ export default function Product() {
             transition: none;
           }
         }
-      `}</style>
+      `}</style> */}
 
       <Analytics.ProductView
         data={{
