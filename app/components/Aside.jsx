@@ -1,4 +1,4 @@
-import {createContext, useContext, useEffect, useState} from 'react';
+import {createContext, useContext, useEffect, useState, useRef} from 'react';
 import {useId} from 'react';
 
 /**
@@ -20,6 +20,25 @@ export function Aside({children, heading, type}) {
   const {type: activeType, close} = useAside();
   const expanded = type === activeType;
   const id = useId();
+
+  const [showScrollbar, setShowScrollbar] = useState(false);
+const scrollbarTimer = useRef(null);
+
+const handleContentScroll = () => {
+  setShowScrollbar(true);
+
+  clearTimeout(scrollbarTimer.current);
+
+  scrollbarTimer.current = setTimeout(() => {
+    setShowScrollbar(false);
+  }, 2000);
+};
+
+useEffect(() => {
+  return () => clearTimeout(scrollbarTimer.current);
+}, []);
+
+
   useEffect(() => {
     const abortController = new AbortController();
 
@@ -40,7 +59,7 @@ export function Aside({children, heading, type}) {
   return (
     <div
       aria-modal
-      className={`overlay ${expanded ? 'expanded' : ''}`}
+      className={`overlay overlay-${type} ${expanded ? 'expanded' : ''}`}
       role="dialog"
       aria-labelledby={id}
     >
@@ -52,7 +71,13 @@ export function Aside({children, heading, type}) {
             &times;
           </button>
         </header>
-        <main className="aside-aro-layout">{children}</main>
+        {/* <main className="aside-aro-layout">{children}</main> */}
+        <main
+          className={`aside-aro-layout ${showScrollbar ? 'is-scrolling' : ''}`}
+          onScroll={handleContentScroll}
+        >
+          {children}
+        </main>
       </aside>
     </div>
   );

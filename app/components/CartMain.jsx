@@ -88,7 +88,8 @@ useEffect(() => {
   const childrenMap = getLineItemChildrenMap(cart?.lines?.nodes ?? []);
 
   return (
-    <section
+    <section 
+      style={{paddingBottom: "0px"}}
       className={className}
       aria-label={layout === 'page' ? 'Cart page' : 'Cart drawer'}
     >

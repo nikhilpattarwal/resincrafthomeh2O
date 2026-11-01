@@ -9,6 +9,7 @@ import {
   SearchFormPredictive,
 } from '~/components/SearchFormPredictive';
 import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
+import {FloatingCart} from './FloatingCart';
 
 /**
  * @param {PageLayoutProps}
@@ -24,6 +25,7 @@ export function PageLayout({
   return (
     <Aside.Provider>
       <CartAside cart={cart} />
+      <FloatingCart cart={cart} />
       <SearchAside />
       <MobileMenuAside header={header} publicStoreDomain={publicStoreDomain} />
       {header && (
@@ -153,7 +155,8 @@ function MobileMenuAside({header, publicStoreDomain}) {
   return (
     header.menu &&
     header.shop.primaryDomain?.url && (
-      <Aside type="mobile" heading="MENU">
+      // <Aside type="mobile" heading="MENU">
+      <Aside type="mobile" heading="EXPLORE">
         <HeaderMenu
           menu={header.menu}
           viewport="mobile"

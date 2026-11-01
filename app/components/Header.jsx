@@ -88,10 +88,44 @@ export function HeaderMenu({
   );
 }
 
+// function HeaderCtas({isLoggedIn, cart}) {
+//   return (
+//     <nav className="rch-header-actions" aria-label="Store actions">
+
+//       <NavLink
+//         prefetch="intent"
+//         to="/account"
+//         className="rch-action-button rch-account-link"
+//         aria-label="Sign in or view account"
+//         title="Account"
+//       >
+//         <Suspense fallback={<UserRound size={21} />}>
+//           <Await resolve={isLoggedIn} errorElement={<UserRound size={21} />}>
+//             {(loggedIn) => (
+//               <UserRound
+//                 size={21}
+//                 className={loggedIn ? 'rch-icon-account' : 'rch-icon-signin'}
+//               />
+//             )}
+//           </Await>
+//         </Suspense>
+//       </NavLink>
+
+//       <SearchToggle />
+//       <CartToggle cart={cart} />
+//       <HeaderMenuMobileToggle />
+
+//     </nav>
+//   );
+// }
+
 function HeaderCtas({isLoggedIn, cart}) {
   return (
     <nav className="rch-header-actions" aria-label="Store actions">
+
       <HeaderMenuMobileToggle />
+
+      <SearchToggle />
 
       <NavLink
         prefetch="intent"
@@ -112,8 +146,8 @@ function HeaderCtas({isLoggedIn, cart}) {
         </Suspense>
       </NavLink>
 
-      <SearchToggle />
       <CartToggle cart={cart} />
+
     </nav>
   );
 }
@@ -198,11 +232,22 @@ function CartBanner() {
   return <CartBadge count={cart?.totalQuantity ?? 0} />;
 }
 
+// const FALLBACK_HEADER_MENU = {
+//   items: [
+//     {id: 'home', title: 'Home', url: '/'},
+//     {id: 'shop', title: 'Shop', url: '/collections'},
+//     {id: 'story', title: 'Our Story', url: '/pages/our-story'},
+//     {id: 'journal', title: 'Journal', url: '/blogs/journal'},
+//   ],
+// };
+
+
 const FALLBACK_HEADER_MENU = {
   items: [
     {id: 'home', title: 'Home', url: '/'},
-    {id: 'shop', title: 'Shop', url: '/collections'},
+    {id: 'shop', title: 'Shop All', url: '/collections/all'},
     {id: 'story', title: 'Our Story', url: '/pages/our-story'},
-    {id: 'journal', title: 'Journal', url: '/blogs/journal'},
+    {id: 'orders', title: 'My Orders', url: '/account/orders'},
+    {id: 'contact', title: 'Contact Us', url: '/pages/contact-us'},
   ],
 };
