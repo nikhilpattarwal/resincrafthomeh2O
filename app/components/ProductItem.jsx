@@ -41,7 +41,9 @@ export function ProductItem({product, loading = 'lazy'}) {
           className="rch-product-card__title-link"
         >
           <h3 className="rch-product-card__title">
-            {product.title}
+            {product.title.length > 35
+              ? `${product.title.slice(0, 35)}...`
+              : product.title}
           </h3>
         </Link>
 
